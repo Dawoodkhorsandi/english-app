@@ -109,7 +109,9 @@ class _AuthInterceptor extends Interceptor {
       '[Auth] ERROR ${err.response?.statusCode} ${err.requestOptions.path}',
       name: 'ApiClient',
     );
-    if (err.response?.statusCode == 401) {
+    final path = err.requestOptions.path;
+    final isAuthEndpoint = path.contains('/api/auth/');
+    if (err.response?.statusCode == 401 && !isAuthEndpoint) {
       _client.clearAuth();
     }
     handler.next(err);

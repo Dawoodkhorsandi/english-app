@@ -15,29 +15,19 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen>
-    with WidgetsBindingObserver {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
-  final _codeController = TextEditingController();
   bool _isLogin = true;
   bool _obscurePassword = true;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
-    _codeController.dispose();
     super.dispose();
   }
 
@@ -55,99 +45,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      dev.log(
-        '[Login] App resumed, checking clipboard for code...',
-        name: 'Login',
-      );
-      _tryAutoDetectCode();
-    }
-  }
-
-  Future<void> _tryAutoDetectCode() async {
-    try {
-      final data = await Clipboard.getData(Clipboard.kTextPlain);
-      final text = data?.text?.trim().toUpperCase();
-      if (text != null && RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(text)) {
-        dev.log('[Login] Auto-detected code: $text', name: 'Login');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Code detected: $text — signing in...'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-        final auth = ref.read(authProvider.notifier);
-        await auth.loginWithShortCode(text);
-      }
-    } catch (e) {
-      dev.log('[Login] Clipboard check failed: $e', name: 'Login');
-    }
-  }
-
-  Future<void> _openTelegram() async {
-    final shouldContinue = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Login with Telegram'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('1. Tap "Open Telegram" below'),
-            SizedBox(height: 8),
-            Text('2. In the bot, tap "Get Login Code"'),
-            SizedBox(height: 8),
-            Text('3. Tap "Copy Code" in the bot'),
-            SizedBox(height: 8),
-            Text('4. Return here — code detected automatically'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Open Telegram'),
-          ),
-        ],
-      ),
-    );
-
-    if (shouldContinue != true) return;
-
-    final botUsername = botTelegramUsername.replaceFirst('@', '');
-    final uri = Uri.parse('https://t.me/$botUsername');
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Could not open Telegram. Please install it from the Play Store.',
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
-
-    ref.listen<AuthState>(authProvider, (prev, next) {
-      if (next.isAuthenticated && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const _HomePlaceholder()),
-        );
-      }
-    });
 
     return Scaffold(
       body: SafeArea(
@@ -280,97 +179,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: auth.isLoading ? null : _openTelegram,
+                    onPressed: auth.isLoading
+                        ? null
+                        : () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const TelegramCodeScreen(),
+                              ),
+                            );
+                          },
                     icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
                     label: const Text('Continue with Telegram'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: Color(0xFF0088CC)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'OR enter code manually',
-                          style: TextStyle(
-                            color: Theme.of(context).hintColor,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _codeController,
-                    textAlign: TextAlign.center,
-                    textCapitalization: TextCapitalization.characters,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 4,
-                      fontFamily: 'monospace',
-                    ),
-                    decoration: const InputDecoration(
-                      hintText: 'A3F-K9M',
-                      hintStyle: TextStyle(
-                        letterSpacing: 4,
-                        fontFamily: 'monospace',
-                      ),
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.vpn_key),
-                    ),
-                    maxLength: 7,
-                    buildCounter:
-                        (
-                          context, {
-                          required currentLength,
-                          required isFocused,
-                          required maxLength,
-                        }) => null,
-                    onChanged: (v) {
-                      final upper = v.toUpperCase();
-                      if (v != upper) {
-                        _codeController.value = TextEditingValue(
-                          text: upper,
-                          selection: TextSelection.collapsed(
-                            offset: upper.length,
-                          ),
-                        );
-                      }
-                      if (upper.length == 7 &&
-                          RegExp(
-                            r'^[A-Z0-9]{3}-[A-Z0-9]{3}$',
-                          ).hasMatch(upper)) {
-                        ref
-                            .read(authProvider.notifier)
-                            .loginWithShortCode(upper);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: auth.isLoading
-                        ? null
-                        : () {
-                            final code = _codeController.text
-                                .trim()
-                                .toUpperCase();
-                            if (code.isNotEmpty) {
-                              ref
-                                  .read(authProvider.notifier)
-                                  .loginWithShortCode(code);
-                            }
-                          },
-                    icon: const Icon(Icons.login),
-                    label: const Text('Sign In with Code'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
                   ),
                 ],
@@ -400,10 +222,243 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   }
 }
 
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
+class TelegramCodeScreen extends ConsumerStatefulWidget {
+  const TelegramCodeScreen({super.key});
+
+  @override
+  ConsumerState<TelegramCodeScreen> createState() => _TelegramCodeScreenState();
+}
+
+class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
+    with WidgetsBindingObserver {
+  final _codeController = TextEditingController();
+  bool _hasOpenedTelegram = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _hasOpenedTelegram) {
+      dev.log(
+        '[TelegramCode] App resumed, checking clipboard...',
+        name: 'TelegramCode',
+      );
+      _tryAutoDetectCode();
+    }
+  }
+
+  Future<void> _tryAutoDetectCode() async {
+    try {
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
+      final text = data?.text?.trim().toUpperCase();
+      if (text != null && RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(text)) {
+        dev.log(
+          '[TelegramCode] Auto-detected code: $text',
+          name: 'TelegramCode',
+        );
+        _codeController.text = text;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Code detected: $text'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        _submitCode(text);
+      }
+    } catch (e) {
+      dev.log(
+        '[TelegramCode] Clipboard check failed: $e',
+        name: 'TelegramCode',
+      );
+    }
+  }
+
+  Future<void> _submitCode(String code) async {
+    final auth = ref.read(authProvider.notifier);
+    final success = await auth.loginWithShortCode(code);
+    if (!success && mounted) {
+      final error = ref.read(authProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error ?? 'Invalid or expired code'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _openTelegram() async {
+    final botUsername = botTelegramUsername.replaceFirst('@', '');
+    final uri = Uri.parse('https://t.me/$botUsername');
+    try {
+      _hasOpenedTelegram = true;
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Could not open Telegram. Please install it from the Play Store.',
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final auth = ref.watch(authProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Telegram Login')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(Icons.telegram, size: 64, color: Color(0xFF0088CC)),
+              const SizedBox(height: 24),
+              Text(
+                'Login with Telegram',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Steps:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 8),
+                      Text('1. Tap "Open Telegram" below'),
+                      SizedBox(height: 4),
+                      Text('2. In the bot, tap "Get Login Code"'),
+                      SizedBox(height: 4),
+                      Text('3. Tap "Copy Code" in the bot'),
+                      SizedBox(height: 4),
+                      Text('4. Return here — code detected automatically'),
+                      SizedBox(height: 4),
+                      Text('5. Or paste the code below and tap "Sign In"'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              OutlinedButton.icon(
+                onPressed: auth.isLoading ? null : _openTelegram,
+                icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
+                label: const Text('Open Telegram'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(color: Color(0xFF0088CC)),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Enter code manually',
+                      style: TextStyle(
+                        color: Theme.of(context).hintColor,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _codeController,
+                textAlign: TextAlign.center,
+                textCapitalization: TextCapitalization.characters,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 6,
+                  fontFamily: 'monospace',
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'A3F-K9M',
+                  hintStyle: TextStyle(
+                    letterSpacing: 6,
+                    fontFamily: 'monospace',
+                    color: Colors.grey,
+                  ),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.vpn_key),
+                ),
+                maxLength: 7,
+                buildCounter:
+                    (
+                      context, {
+                      required currentLength,
+                      required isFocused,
+                      required maxLength,
+                    }) => null,
+                onChanged: (v) {
+                  final upper = v.toUpperCase();
+                  if (v != upper) {
+                    _codeController.value = TextEditingValue(
+                      text: upper,
+                      selection: TextSelection.collapsed(offset: upper.length),
+                    );
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: auth.isLoading
+                    ? null
+                    : () {
+                        final code = _codeController.text.trim().toUpperCase();
+                        if (code.isNotEmpty) {
+                          _submitCode(code);
+                        }
+                      },
+                icon: const Icon(Icons.login),
+                label: const Text('Sign In with Code'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+              if (auth.error != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  auth.error!,
+                  style: const TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

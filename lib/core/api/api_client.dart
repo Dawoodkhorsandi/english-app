@@ -1,8 +1,7 @@
 import 'dart:developer' as dev;
-import 'dart:io' show Platform;
-import 'package:chucker/chucker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../constants.dart';
 
@@ -22,17 +21,19 @@ class ApiClient {
         headers: {'Content-Type': 'application/json'},
       ),
     );
-    // Chucker only in debug mode
     if (kDebugMode) {
-      _dio.interceptors.add(ChuckerDioInterceptor());
+      _dio.interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseHeader: true,
+          responseBody: true,
+          error: true,
+          compact: false,
+          maxWidth: 90,
+        ),
+      );
     }
-    _dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseBody: true,
-        logPrint: (obj) => dev.log('[API] $obj', name: 'ApiClient'),
-      ),
-    );
     _dio.interceptors.add(_AuthInterceptor(this));
   }
 

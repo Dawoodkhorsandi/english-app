@@ -245,10 +245,10 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
     with WidgetsBindingObserver {
   final _codeController = TextEditingController();
   bool _hasOpenedTelegram = false;
-  // Guards so the resume-driven auto-detect can't resubmit a code: codes are
-  // single-use, so resubmitting the same one always fails with "already used".
+  // Guard against overlapping submits (e.g. double-tap). Auto-detect only fills
+  // the field — it never submits — so the resume lifecycle can't race or
+  // resubmit a single-use code.
   bool _submitting = false;
-  String? _lastAttempted;
 
   @override
   void initState() {
@@ -279,16 +279,21 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
       final data = await Clipboard.getData(Clipboard.kTextPlain);
       final text = data?.text?.trim().toUpperCase();
       if (text != null && RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(text)) {
-        // Don't re-fire for a code we've already attempted — the resume
-        // lifecycle event fires repeatedly and the code is single-use.
-        if (text == _lastAttempted ||
-            _submitting ||
-            ref.read(authProvider).isAuthenticated) {
-          return;
-        }
+        if (_submitting || ref.read(authProvider).isAuthenticated) return;
+        // Auto-FILL only — never auto-submit. The user taps "Sign In" to redeem
+        // the single-use code, so the resume lifecycle can't consume it (or race
+        // another installed build for it).
         dev.log('[TelegramCode] Auto-detected code', name: 'TelegramCode');
         _codeController.text = text;
-        _submitCode(text);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Code detected — tap "Sign In with Code"'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
     } catch (e) {
       dev.log('[TelegramCode] Clipboard check failed', name: 'TelegramCode');
@@ -296,12 +301,9 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
   }
 
   Future<void> _submitCode(String code) async {
-    // One attempt per code; ignore duplicates and overlapping submits.
-    if (_submitting || code == _lastAttempted) return;
-    setState(() {
-      _submitting = true;
-      _lastAttempted = code;
-    });
+    // Ignore overlapping submits (e.g. double-tap) while one is in flight.
+    if (_submitting) return;
+    setState(() => _submitting = true);
     final auth = ref.read(authProvider.notifier);
     final success = await auth.loginWithShortCode(code);
     if (!mounted) return;
@@ -388,9 +390,9 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
                       SizedBox(height: 4),
                       Text('3. Copy the code it replies with'),
                       SizedBox(height: 4),
-                      Text('4. Return here — code detected automatically'),
+                      Text('4. Return here — the code auto-fills below'),
                       SizedBox(height: 4),
-                      Text('5. Or paste the code below and tap "Sign In"'),
+                      Text('5. Tap "Sign In with Code"'),
                     ],
                   ),
                 ),

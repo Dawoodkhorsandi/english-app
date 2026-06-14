@@ -1,6 +1,19 @@
 import 'dart:developer' as dev;
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
+
+/// Extracts the backend's error text from a failed request. The auth endpoints
+/// reply with a plain-text body (e.g. "code already used") on 4xx, or a JSON
+/// {"error": ...} on some routes. Returns '' when nothing useful is present.
+String _serverError(Object e) {
+  if (e is DioException) {
+    final data = e.response?.data;
+    if (data is String && data.trim().isNotEmpty) return data.trim();
+    if (data is Map && data['error'] != null) return data['error'].toString();
+  }
+  return '';
+}
 
 enum AuthMethod { telegram, email, none }
 
@@ -141,9 +154,27 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return true;
     } catch (e) {
       dev.log('[Auth] Short code verification failed', name: 'Auth');
-      String errorMsg = 'Invalid or expired code. Get a new one from the bot.';
-      if (e.toString().contains('401')) {
-        errorMsg = 'Code expired or already used. Get a new one from the bot.';
+      // Surface the exact backend reason so "invalid" vs "used" vs "expired"
+      // is no longer ambiguous.
+      final reason = _serverError(e);
+      String errorMsg;
+      switch (reason) {
+        case 'code already used':
+          errorMsg =
+              'That code was already used. Send /login to the bot for a fresh code.';
+          break;
+        case 'code expired':
+          errorMsg =
+              'That code expired (codes last 5 minutes). Send /login for a new one.';
+          break;
+        case 'invalid code':
+          errorMsg =
+              "That code wasn't recognised. Re-check it, or send /login for a new one.";
+          break;
+        default:
+          errorMsg = reason.isNotEmpty
+              ? 'Login failed: $reason'
+              : 'Login failed. Send /login to the bot for a fresh code.';
       }
       state = state.copyWith(isLoading: false, error: errorMsg);
       return false;

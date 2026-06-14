@@ -56,7 +56,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         setState(() => _waitingForTelegram = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not open Telegram. Please install Telegram from the Play Store.'),
+            content: Text(
+              'Could not open Telegram. Please install Telegram from the Play Store.',
+            ),
           ),
         );
       }

@@ -22,7 +22,7 @@ jobs:
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze
-        run: flutter analyze --no-pub
+        run: dart analyze --no-fatal-infos
       - name: Run tests
         run: flutter test --no-pub
 

@@ -9,7 +9,7 @@ import 'package:english_app/core/auth/auth_provider.dart';
 import 'package:english_app/core/api/api_client.dart';
 
 class _NoOpApiClient extends ApiClient {
-  _NoOpApiClient({super.storage});
+  _NoOpApiClient();
 
   @override
   Future<Response> get(

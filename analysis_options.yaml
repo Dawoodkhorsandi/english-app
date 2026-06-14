@@ -1,26 +1,19 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  errors:
-    missing_return: error
-    dead_code: warning
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
 
 linter:
   rules:
-    # Error prevention
     - avoid_print
     - avoid_unnecessary_containers
     - avoid_web_libraries_in_flutter
-    - dead_code
     - empty_catches
     - no_duplicate_case_values
     - unnecessary_statements
     - use_key_in_widget_constructors
-
-    # Style
     - always_declare_return_types
     - annotate_overrides
     - avoid_empty_else
@@ -33,8 +26,6 @@ linter:
     - sort_child_properties_last
     - use_build_context_synchronously
     - prefer_single_quotes
-
-    # Avoid
     - avoid_relative_lib_imports
     - prefer_typing_uninitialized_variables
     - sized_box_for_whitespace

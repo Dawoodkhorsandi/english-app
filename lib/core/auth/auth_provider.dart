@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/api_client.dart';
 
@@ -86,6 +87,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<bool> loginWithClipboard() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
+      final initData = data?.text;
+      if (initData == null || initData.isEmpty || !initData.contains('user=')) {
+        state = state.copyWith(isLoading: false, error: 'No Telegram login data found. Open the bot in Telegram and tap "Copy Login Code".');
+        return false;
+      }
+      _apiClient.setTelegramInitData(initData);
+      await _storage.write(key: 'telegram_init_data', value: initData);
+      state = AuthState(method: AuthMethod.telegram);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: 'Failed to read Telegram data from clipboard.');
+      return false;
+    }
+  }
+
   void setTelegramAuth(String initData) {
     _apiClient.setTelegramInitData(initData);
     state = AuthState(method: AuthMethod.telegram);
@@ -94,6 +114,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     _apiClient.clearAuth();
     await _storage.delete(key: 'jwt_token');
+    await _storage.delete(key: 'telegram_init_data');
     state = AuthState();
   }
 }

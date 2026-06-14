@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/auth/auth_provider.dart';
+import '../../core/constants.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -9,20 +12,64 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   bool _isLogin = true;
   bool _obscurePassword = true;
+  bool _waitingForTelegram = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _waitingForTelegram) {
+      _waitingForTelegram = false;
+      _tryTelegramLogin();
+    }
+  }
+
+  Future<void> _openTelegram() async {
+    final botUsername = botTelegramUsername.replaceFirst('@', '');
+    final uri = Uri.parse('https://t.me/$botUsername?startapp=link_account');
+    if (await canLaunchUrl(uri)) {
+      setState(() => _waitingForTelegram = true);
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open Telegram. Please install Telegram.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _tryTelegramLogin() async {
+    final auth = ref.read(authProvider.notifier);
+    final success = await auth.loginWithClipboard();
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Tap "Copy Login Code" in the Telegram bot, then return here.'),
+          action: SnackBarAction(label: 'Retry', onPressed: _tryTelegramLogin),
+        ),
+      );
+    }
   }
 
   void _submit() {
@@ -127,18 +174,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Telegram login coming soon!')),
-                      );
-                    },
+                    onPressed: auth.isLoading ? null : _openTelegram,
                     icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
-                    label: const Text('Continue with Telegram'),
+                    label: Text(_waitingForTelegram ? 'Waiting for Telegram...' : 'Continue with Telegram'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: Color(0xFF0088CC)),
                     ),
                   ),
+                  if (_waitingForTelegram) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      '1. Tap "Copy Login Code" in the bot\n2. Return to this app',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor),
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1565C0"/>
+      <stop offset="100%" style="stop-color:#0D47A1"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  
+  <!-- Dumbbell -->
+  <rect x="220" y="440" width="584" height="48" rx="24" fill="white" opacity="0.95"/>
+  
+  <!-- Left plates -->
+  <rect x="160" y="360" width="40" height="208" rx="16" fill="#42A5F5"/>
+  <rect x="100" y="380" width="40" height="168" rx="16" fill="white" opacity="0.85"/>
+  
+  <!-- Right plates -->
+  <rect x="824" y="360" width="40" height="208" rx="16" fill="#42A5F5"/>
+  <rect x="884" y="380" width="40" height="168" rx="16" fill="white" opacity="0.85"/>
+  
+  <!-- Speech bubble -->
+  <path d="M 320 600 Q 320 540 380 540 L 644 540 Q 704 540 704 600 L 704 720 Q 704 780 644 780 L 480 780 L 420 860 L 430 780 L 380 780 Q 320 780 320 720 Z" fill="white" opacity="0.95"/>
+  
+  <!-- "En" text -->
+  <text x="512" y="700" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="96" font-weight="700" fill="#1565C0">En</text>
+</svg>

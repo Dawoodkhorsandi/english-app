@@ -1,0 +1,32 @@
+class ApiEndpoints {
+  static const config = '/api/config';
+  static const stats = '/api/stats';
+  static const analytics = '/api/analytics';
+  static const vocab = '/api/vocab';
+  static const vocabCard = '/api/vocab/card';
+  static const bookmark = '/api/bookmark';
+  static const leaderboard = '/api/leaderboard';
+  static const leaderboardName = '/api/leaderboard/name';
+  static const profile = '/api/profile';
+  static const kudos = '/api/kudos';
+  static const reviewNext = '/api/review/next';
+  static const reviewAnswer = '/api/review/answer';
+  static const reviewSummary = '/api/review/summary';
+  static const decks = '/api/decks';
+  static const decksStudy = '/api/decks/study';
+  static const decksDetail = '/api/decks/detail';
+  static const decksSwipe = '/api/decks/swipe';
+  static const settings = '/api/settings';
+  static const content = '/api/content';
+  static const quizzes = '/api/quizzes';
+  static const quizNext = '/api/quiz/next';
+  static const quizAnswer = '/api/quiz/answer';
+  static const practice = '/api/practice';
+  static const grammar = '/api/grammar';
+  static const grammarLesson = '/api/grammar/lesson';
+  static const dictionary = '/api/dictionary';
+  static const authRegister = '/api/auth/register';
+  static const authLogin = '/api/auth/login';
+  static const authRefresh = '/api/auth/refresh';
+  static const authMe = '/api/auth/me';
+}

@@ -1,0 +1,77 @@
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../constants.dart';
+
+class ApiClient {
+  late final Dio _dio;
+  final FlutterSecureStorage _storage;
+  String? _telegramInitData;
+  String? _jwtToken;
+
+  ApiClient({FlutterSecureStorage? storage}) : _storage = storage ?? const FlutterSecureStorage() {
+    _dio = Dio(BaseOptions(
+      baseUrl: baseUrl,
+      connectTimeout: requestTimeout,
+      receiveTimeout: requestTimeout,
+      headers: {'Content-Type': 'application/json'},
+    ));
+    _dio.interceptors.add(_AuthInterceptor(this));
+  }
+
+  void setTelegramInitData(String initData) {
+    _telegramInitData = initData;
+  }
+
+  void setJwtToken(String token) {
+    _jwtToken = token;
+    _storage.write(key: 'jwt_token', value: token);
+  }
+
+  Future<void> loadStoredToken() async {
+    _jwtToken = await _storage.read(key: 'jwt_token');
+  }
+
+  void clearAuth() {
+    _telegramInitData = null;
+    _jwtToken = null;
+    _storage.delete(key: 'jwt_token');
+  }
+
+  bool get isAuthenticated => _telegramInitData != null || _jwtToken != null;
+
+  String? get currentToken => _jwtToken;
+  String? get currentInitData => _telegramInitData;
+
+  Dio get dio => _dio;
+
+  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) {
+    return _dio.get(path, queryParameters: queryParameters);
+  }
+
+  Future<Response> post(String path, {dynamic data}) {
+    return _dio.post(path, data: data);
+  }
+}
+
+class _AuthInterceptor extends Interceptor {
+  final ApiClient _client;
+  _AuthInterceptor(this._client);
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (_client._jwtToken != null) {
+      options.headers['Authorization'] = 'Bearer ${_client._jwtToken}';
+    } else if (_client._telegramInitData != null) {
+      options.headers['X-Init-Data'] = _client._telegramInitData;
+    }
+    handler.next(options);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    if (err.response?.statusCode == 401) {
+      _client.clearAuth();
+    }
+    handler.next(err);
+  }
+}

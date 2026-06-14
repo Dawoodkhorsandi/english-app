@@ -9,15 +9,15 @@ class AuthGate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authProvider);
-    
+
     if (auth.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    
+
     if (!auth.isAuthenticated) {
       return const LoginScreen();
     }
-    
+
     return const SizedBox.shrink();
   }
 }

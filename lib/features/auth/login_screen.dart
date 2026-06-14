@@ -12,7 +12,8 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingObserver {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -53,7 +54,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open Telegram. Please install Telegram.')),
+          const SnackBar(
+            content: Text('Could not open Telegram. Please install Telegram.'),
+          ),
         );
       }
     }
@@ -65,7 +68,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Tap "Copy Login Code" in the Telegram bot, then return here.'),
+          content: const Text(
+            'Tap "Copy Login Code" in the Telegram bot, then return here.',
+          ),
           action: SnackBarAction(label: 'Retry', onPressed: _tryTelegramLogin),
         ),
       );
@@ -76,9 +81,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     if (!_formKey.currentState!.validate()) return;
     final auth = ref.read(authProvider.notifier);
     if (_isLogin) {
-      auth.loginWithEmail(_emailController.text.trim(), _passwordController.text);
+      auth.loginWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
     } else {
-      auth.register(_emailController.text.trim(), _passwordController.text, _nameController.text.trim());
+      auth.register(
+        _emailController.text.trim(),
+        _passwordController.text,
+        _nameController.text.trim(),
+      );
     }
   }
 
@@ -88,9 +100,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
 
     ref.listen<AuthState>(authProvider, (prev, next) {
       if (next.isAuthenticated && mounted) {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (_) => const _HomePlaceholder(),
-        ));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const _HomePlaceholder()),
+        );
       }
     });
 
@@ -107,23 +119,46 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                 children: [
                   const Icon(Icons.school, size: 64, color: Color(0xFF2196F3)),
                   const SizedBox(height: 16),
-                  Text('English Muscle Memory', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'English Muscle Memory',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text('AI-powered English practice', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
+                  Text(
+                    'AI-powered English practice',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                  ),
                   const SizedBox(height: 48),
                   if (!_isLogin)
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder(), prefixIcon: Icon(Icons.person)),
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Name is required' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Name is required'
+                          : null,
                     ),
                   if (!_isLogin) const SizedBox(height: 16),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder(), prefixIcon: Icon(Icons.email)),
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email),
+                    ),
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Email is required';
+                      if (v == null || v.trim().isEmpty)
+                        return 'Email is required';
                       if (!v.contains('@')) return 'Invalid email';
                       return null;
                     },
@@ -137,8 +172,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                       border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
-                        icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
                     ),
                     validator: (v) {
@@ -149,26 +190,48 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                   ),
                   if (auth.error != null) ...[
                     const SizedBox(height: 12),
-                    Text(auth.error!, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
+                    Text(
+                      auth.error!,
+                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: auth.isLoading ? null : _submit,
-                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                     child: auth.isLoading
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
                         : Text(_isLogin ? 'Sign In' : 'Create Account'),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () => setState(() { _isLogin = !_isLogin; }),
-                    child: Text(_isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'),
+                    onPressed: () => setState(() {
+                      _isLogin = !_isLogin;
+                    }),
+                    child: Text(
+                      _isLogin
+                          ? "Don't have an account? Sign Up"
+                          : 'Already have an account? Sign In',
+                    ),
                   ),
                   const SizedBox(height: 32),
                   const Row(
                     children: [
                       Expanded(child: Divider()),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: Text('OR', style: TextStyle(color: Colors.grey))),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Text('OR', style: TextStyle(color: Colors.grey)),
+                      ),
                       Expanded(child: Divider()),
                     ],
                   ),
@@ -176,7 +239,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                   OutlinedButton.icon(
                     onPressed: auth.isLoading ? null : _openTelegram,
                     icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
-                    label: Text(_waitingForTelegram ? 'Waiting for Telegram...' : 'Continue with Telegram'),
+                    label: Text(
+                      _waitingForTelegram
+                          ? 'Waiting for Telegram...'
+                          : 'Continue with Telegram',
+                    ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: Color(0xFF0088CC)),
@@ -187,7 +254,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                     Text(
                       '1. Tap "Copy Login Code" in the bot\n2. Return to this app',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).hintColor,
+                      ),
                     ),
                   ],
                 ],

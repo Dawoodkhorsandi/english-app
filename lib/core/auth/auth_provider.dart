@@ -12,9 +12,22 @@ class AuthState {
   final String? email;
   final String? name;
 
-  AuthState({this.method = AuthMethod.none, this.isLoading = false, this.error, this.email, this.name});
+  AuthState({
+    this.method = AuthMethod.none,
+    this.isLoading = false,
+    this.error,
+    this.email,
+    this.name,
+  });
 
-  AuthState copyWith({AuthMethod? method, bool? isLoading, String? error, String? email, String? name, bool clearError = false}) {
+  AuthState copyWith({
+    AuthMethod? method,
+    bool? isLoading,
+    String? error,
+    String? email,
+    String? name,
+    bool clearError = false,
+  }) {
     return AuthState(
       method: method ?? this.method,
       isLoading: isLoading ?? this.isLoading,
@@ -32,8 +45,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final FlutterSecureStorage _storage;
 
   AuthNotifier(this._apiClient, [FlutterSecureStorage? storage])
-      : _storage = storage ?? const FlutterSecureStorage(),
-        super(AuthState()) {
+    : _storage = storage ?? const FlutterSecureStorage(),
+      super(AuthState()) {
     _init();
   }
 
@@ -62,28 +75,44 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> loginWithEmail(String email, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final response = await _apiClient.post('/api/auth/login', data: {'email': email, 'password': password});
+      final response = await _apiClient.post(
+        '/api/auth/login',
+        data: {'email': email, 'password': password},
+      );
       final data = response.data;
       final token = data['token'] as String;
       _apiClient.setJwtToken(token);
       await _storage.write(key: 'jwt_token', value: token);
-      state = AuthState(method: AuthMethod.email, email: email, name: data['name']);
+      state = AuthState(
+        method: AuthMethod.email,
+        email: email,
+        name: data['name'],
+      );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Login failed. Please check your credentials.');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Login failed. Please check your credentials.',
+      );
     }
   }
 
   Future<void> register(String email, String password, String name) async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
-      final response = await _apiClient.post('/api/auth/register', data: {'email': email, 'password': password, 'name': name});
+      final response = await _apiClient.post(
+        '/api/auth/register',
+        data: {'email': email, 'password': password, 'name': name},
+      );
       final data = response.data;
       final token = data['token'] as String;
       _apiClient.setJwtToken(token);
       await _storage.write(key: 'jwt_token', value: token);
       state = AuthState(method: AuthMethod.email, email: email, name: name);
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Registration failed. Email may already be in use.');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Registration failed. Email may already be in use.',
+      );
     }
   }
 
@@ -93,7 +122,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
       final initData = data?.text;
       if (initData == null || initData.isEmpty || !initData.contains('user=')) {
-        state = state.copyWith(isLoading: false, error: 'No Telegram login data found. Open the bot in Telegram and tap "Copy Login Code".');
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              'No Telegram login data found. Open the bot in Telegram and tap "Copy Login Code".',
+        );
         return false;
       }
       _apiClient.setTelegramInitData(initData);
@@ -101,7 +134,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState(method: AuthMethod.telegram);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Failed to read Telegram data from clipboard.');
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to read Telegram data from clipboard.',
+      );
       return false;
     }
   }

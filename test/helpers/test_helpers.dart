@@ -5,10 +5,7 @@ import 'package:english_app/core/api/api_client.dart';
 
 Widget wrapInApp(Widget child, {List<Override> overrides = const []}) {
   return ProviderScope(
-    overrides: [
-      apiClientProvider.overrideWithValue(ApiClient()),
-      ...overrides,
-    ],
+    overrides: [apiClientProvider.overrideWithValue(ApiClient()), ...overrides],
     child: MaterialApp(home: Scaffold(body: child)),
   );
 }

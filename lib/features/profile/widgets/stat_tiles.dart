@@ -21,7 +21,12 @@ class StatTiles extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, mainAxisSpacing: 8, crossAxisSpacing: 8, childAspectRatio: 2),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        childAspectRatio: 2,
+      ),
       itemCount: tiles.length,
       itemBuilder: (context, i) {
         final (emoji, count, label) = tiles[i];
@@ -34,8 +39,20 @@ class StatTiles extends StatelessWidget {
               children: [
                 Text(emoji, style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 4),
-                Text(count, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text(label, style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                Text(
+                  count,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
               ],
             ),
           ),

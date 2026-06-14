@@ -20,7 +20,10 @@ class RanksScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('🏆 Leaderboard', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+          const Text(
+            '🏆 Leaderboard',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -55,9 +58,18 @@ class RanksScreen extends ConsumerWidget {
                       Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
-                          leading: Text('#${resp.me!.rank}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                          title: Text(resp.me!.name.isNotEmpty ? resp.me!.name : 'You', style: const TextStyle(fontWeight: FontWeight.w600)),
-                          trailing: Text('${resp.me!.value}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          leading: Text(
+                            '#${resp.me!.rank}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          title: Text(
+                            resp.me!.name.isNotEmpty ? resp.me!.name : 'You',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          trailing: Text(
+                            '${resp.me!.value}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     Expanded(
@@ -69,12 +81,24 @@ class RanksScreen extends ConsumerWidget {
                             leading: _medal(r.rank),
                             title: Text(
                               r.name.isNotEmpty ? r.name : 'User',
-                              style: TextStyle(fontWeight: r.isMe ? FontWeight.bold : FontWeight.normal),
+                              style: TextStyle(
+                                fontWeight: r.isMe
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
                             ),
-                            trailing: Text('${r.value}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => ProfileDetailScreen(userId: r.id),
-                            )),
+                            trailing: Text(
+                              '${r.value}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ProfileDetailScreen(userId: r.id),
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -89,7 +113,12 @@ class RanksScreen extends ConsumerWidget {
     );
   }
 
-  Widget _metricChip(WidgetRef ref, String metric, String label, String current) {
+  Widget _metricChip(
+    WidgetRef ref,
+    String metric,
+    String label,
+    String current,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
@@ -106,10 +135,17 @@ class RanksScreen extends ConsumerWidget {
 
   Widget _medal(int rank) {
     switch (rank) {
-      case 1: return const Text('🥇', style: TextStyle(fontSize: 24));
-      case 2: return const Text('🥈', style: TextStyle(fontSize: 24));
-      case 3: return const Text('🥉', style: TextStyle(fontSize: 24));
-      default: return CircleAvatar(radius: 14, child: Text('#$rank', style: const TextStyle(fontSize: 12)));
+      case 1:
+        return const Text('🥇', style: TextStyle(fontSize: 24));
+      case 2:
+        return const Text('🥈', style: TextStyle(fontSize: 24));
+      case 3:
+        return const Text('🥉', style: TextStyle(fontSize: 24));
+      default:
+        return CircleAvatar(
+          radius: 14,
+          child: Text('#$rank', style: const TextStyle(fontSize: 12)),
+        );
     }
   }
 }

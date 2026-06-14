@@ -23,7 +23,29 @@ class Stats {
   final int achUnlocked;
   final int achTotal;
 
-  Stats({required this.currentStreak, required this.longestStreak, required this.words, required this.mastered, required this.verbs, required this.quizAnswered, required this.quizCorrect, required this.quizPct, required this.idioms, required this.collocations, required this.stories, required this.tips, required this.activeDays, required this.activityDays, required this.activityCounts, required this.level, required this.paused, required this.memberSince, required this.achievements, required this.achUnlocked, required this.achTotal});
+  Stats({
+    required this.currentStreak,
+    required this.longestStreak,
+    required this.words,
+    required this.mastered,
+    required this.verbs,
+    required this.quizAnswered,
+    required this.quizCorrect,
+    required this.quizPct,
+    required this.idioms,
+    required this.collocations,
+    required this.stories,
+    required this.tips,
+    required this.activeDays,
+    required this.activityDays,
+    required this.activityCounts,
+    required this.level,
+    required this.paused,
+    required this.memberSince,
+    required this.achievements,
+    required this.achUnlocked,
+    required this.achTotal,
+  });
 
   factory Stats.fromJson(Map<String, dynamic> json) {
     return Stats(
@@ -45,7 +67,9 @@ class Stats {
       level: json['level'] ?? 'intermediate',
       paused: json['paused'] ?? false,
       memberSince: json['member_since'] ?? '',
-      achievements: (json['achievements'] as List? ?? []).map((a) => Achievement.fromJson(a)).toList(),
+      achievements: (json['achievements'] as List? ?? [])
+          .map((a) => Achievement.fromJson(a))
+          .toList(),
       achUnlocked: json['ach_unlocked'] ?? 0,
       achTotal: json['ach_total'] ?? 0,
     );

@@ -65,14 +65,20 @@ class _FakeApiClient extends ApiClient {
   }
 
   @override
-  Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
     if (_getResponses.containsKey(path)) {
       return Response(
         requestOptions: RequestOptions(path: path),
         data: _getResponses[path],
       );
     }
-    return Response(requestOptions: RequestOptions(path: path), data: {});
+    return Response(
+      requestOptions: RequestOptions(path: path),
+      data: {},
+    );
   }
 
   @override
@@ -84,7 +90,10 @@ class _FakeApiClient extends ApiClient {
         data: _postResponses[path],
       );
     }
-    return Response(requestOptions: RequestOptions(path: path), data: {});
+    return Response(
+      requestOptions: RequestOptions(path: path),
+      data: {},
+    );
   }
 }
 
@@ -134,7 +143,10 @@ void main() {
       await Future.delayed(Duration.zero);
 
       expect(notifier.state.isAuthenticated, false);
-      expect(notifier.state.error, 'Login failed. Please check your credentials.');
+      expect(
+        notifier.state.error,
+        'Login failed. Please check your credentials.',
+      );
     });
 
     test('logout clears state', () async {

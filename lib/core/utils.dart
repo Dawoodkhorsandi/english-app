@@ -13,8 +13,11 @@ String formatDate(String dateStr) {
 
 String masteryIcon(String mastery) {
   switch (mastery) {
-    case 'mastered': return '✅';
-    case 'learning': return '📖';
-    default: return '🆕';
+    case 'mastered':
+      return '✅';
+    case 'learning':
+      return '📖';
+    default:
+      return '🆕';
   }
 }

@@ -7,7 +7,15 @@ class QuizQuestion {
   final int exp;
   final String token;
 
-  QuizQuestion({required this.available, this.prompt = '', this.options = const [], this.word = '', this.correct = 0, this.exp = 0, this.token = ''});
+  QuizQuestion({
+    required this.available,
+    this.prompt = '',
+    this.options = const [],
+    this.word = '',
+    this.correct = 0,
+    this.exp = 0,
+    this.token = '',
+  });
 
   factory QuizQuestion.fromJson(Map<String, dynamic> json) {
     return QuizQuestion(
@@ -27,7 +35,11 @@ class QuizHistoryItem {
   final bool correct;
   final String answeredAt;
 
-  QuizHistoryItem({required this.word, required this.correct, required this.answeredAt});
+  QuizHistoryItem({
+    required this.word,
+    required this.correct,
+    required this.answeredAt,
+  });
 
   factory QuizHistoryItem.fromJson(Map<String, dynamic> json) {
     return QuizHistoryItem(

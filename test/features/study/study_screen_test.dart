@@ -8,8 +8,24 @@ import 'package:english_app/core/auth/auth_provider.dart';
 import 'package:english_app/core/api/api_client.dart';
 
 List<DeckProgress> testDecks() => [
-  DeckProgress(id: '504-essential', name: '504 Essential Words', description: 'Core vocabulary', total: 504, mastered: 100, due: 50, progressPct: 20),
-  DeckProgress(id: 'gre-333', name: "Barron's GRE 333", description: 'GRE words', total: 333, mastered: 50, due: 30, progressPct: 15),
+  DeckProgress(
+    id: '504-essential',
+    name: '504 Essential Words',
+    description: 'Core vocabulary',
+    total: 504,
+    mastered: 100,
+    due: 50,
+    progressPct: 20,
+  ),
+  DeckProgress(
+    id: 'gre-333',
+    name: "Barron's GRE 333",
+    description: 'GRE words',
+    total: 333,
+    mastered: 50,
+    due: 30,
+    progressPct: 15,
+  ),
 ];
 
 Widget wrapInStudyApp({List<DeckProgress>? decks}) => ProviderScope(

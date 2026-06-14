@@ -7,7 +7,15 @@ class AppSettings {
   final int interval;
   final Map<String, bool> toggles;
 
-  AppSettings({required this.level, required this.levels, required this.levelLabels, required this.name, required this.paused, required this.interval, required this.toggles});
+  AppSettings({
+    required this.level,
+    required this.levels,
+    required this.levelLabels,
+    required this.name,
+    required this.paused,
+    required this.interval,
+    required this.toggles,
+  });
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     return AppSettings(

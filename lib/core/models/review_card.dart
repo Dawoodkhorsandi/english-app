@@ -6,7 +6,14 @@ class ReviewCard {
   final String example;
   final String mnemonic;
 
-  ReviewCard({required this.term, required this.meaning, this.pronunciation = '', this.persian = '', this.example = '', this.mnemonic = ''});
+  ReviewCard({
+    required this.term,
+    required this.meaning,
+    this.pronunciation = '',
+    this.persian = '',
+    this.example = '',
+    this.mnemonic = '',
+  });
 
   factory ReviewCard.fromJson(Map<String, dynamic> json) {
     return ReviewCard(
@@ -30,7 +37,16 @@ class LevelSuggestion {
   final String targetLabel;
   final String message;
 
-  LevelSuggestion({required this.suggest, required this.currentLevel, required this.currentLabel, this.direction = '', this.accuracy = 0, this.targetLevel = '', this.targetLabel = '', this.message = ''});
+  LevelSuggestion({
+    required this.suggest,
+    required this.currentLevel,
+    required this.currentLabel,
+    this.direction = '',
+    this.accuracy = 0,
+    this.targetLevel = '',
+    this.targetLabel = '',
+    this.message = '',
+  });
 
   factory LevelSuggestion.fromJson(Map<String, dynamic> json) {
     return LevelSuggestion(

@@ -26,8 +26,8 @@ class EnglishApp extends ConsumerWidget {
       home: auth.isLoading
           ? const Scaffold(body: Center(child: CircularProgressIndicator()))
           : auth.isAuthenticated
-              ? const MainShell()
-              : const LoginScreen(),
+          ? const MainShell()
+          : const LoginScreen(),
     );
   }
 }

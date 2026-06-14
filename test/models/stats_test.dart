@@ -71,8 +71,26 @@ void main() {
     test('parses achievements list', () {
       final json = {
         'achievements': [
-          {'id': 'a1', 'name': 'First Word', 'icon': '📖', 'description': 'Learn your first word', 'category': 'learning', 'unlocked': true, 'progress': 1, 'target': 1},
-          {'id': 'a2', 'name': 'Streak 7', 'icon': '🔥', 'description': '7 day streak', 'category': 'streak', 'unlocked': false, 'progress': 3, 'target': 7},
+          {
+            'id': 'a1',
+            'name': 'First Word',
+            'icon': '📖',
+            'description': 'Learn your first word',
+            'category': 'learning',
+            'unlocked': true,
+            'progress': 1,
+            'target': 1,
+          },
+          {
+            'id': 'a2',
+            'name': 'Streak 7',
+            'icon': '🔥',
+            'description': '7 day streak',
+            'category': 'streak',
+            'unlocked': false,
+            'progress': 3,
+            'target': 7,
+          },
         ],
       };
 
@@ -87,11 +105,7 @@ void main() {
 
     test('parses activity counts', () {
       final json = {
-        'activity_counts': {
-          '2026-06-01': 10,
-          '2026-06-02': 0,
-          '2026-06-03': 5,
-        },
+        'activity_counts': {'2026-06-01': 10, '2026-06-02': 0, '2026-06-03': 5},
       };
 
       final stats = Stats.fromJson(json);

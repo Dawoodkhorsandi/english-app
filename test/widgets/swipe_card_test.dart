@@ -8,12 +8,9 @@ Widget wrapInApp(Widget child) => MaterialApp(home: Scaffold(body: child));
 void main() {
   group('SwipeSession', () {
     testWidgets('renders empty state when no cards', (tester) async {
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: const [],
-          onAnswer: (_, __) async {},
-        ),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(SwipeSession(cards: const [], onAnswer: (_, __) async {})),
+      );
       await tester.pump();
       expect(find.text('No cards to review.'), findsOneWidget);
     });
@@ -22,9 +19,9 @@ void main() {
       final cards = [
         SwipeCard(front: 'Ubiquitous', back: 'Everywhere', term: 'ubiquitous'),
       ];
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(cards: cards, onAnswer: (_, __) async {}),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+      );
       await tester.pump();
       expect(find.text('Ubiquitous'), findsOneWidget);
       expect(find.text('Tap to flip'), findsOneWidget);
@@ -35,9 +32,9 @@ void main() {
         SwipeCard(front: 'A', back: 'A-back', term: 'a'),
         SwipeCard(front: 'B', back: 'B-back', term: 'b'),
       ];
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(cards: cards, onAnswer: (_, __) async {}),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+      );
       await tester.pump();
       expect(find.text('2 remaining'), findsOneWidget);
     });
@@ -46,9 +43,9 @@ void main() {
       final cards = [
         SwipeCard(front: 'Ubiquitous', back: 'Everywhere', term: 'ubiquitous'),
       ];
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(cards: cards, onAnswer: (_, __) async {}),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+      );
       await tester.pump();
       expect(find.text('Ubiquitous'), findsOneWidget);
 
@@ -62,19 +59,19 @@ void main() {
       SwipeCard? answeredCard;
       bool? answeredKnown;
 
-      final cards = [
-        SwipeCard(front: 'Hello', back: 'World', term: 'hello'),
-      ];
+      final cards = [SwipeCard(front: 'Hello', back: 'World', term: 'hello')];
 
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: cards,
-          onAnswer: (card, known) async {
-            answeredCard = card;
-            answeredKnown = known;
-          },
+      await tester.pumpWidget(
+        wrapInApp(
+          SwipeSession(
+            cards: cards,
+            onAnswer: (card, known) async {
+              answeredCard = card;
+              answeredKnown = known;
+            },
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.text('Knew it'));
@@ -87,18 +84,18 @@ void main() {
     testWidgets('Forgot button commits forgot', (tester) async {
       bool? answeredKnown;
 
-      final cards = [
-        SwipeCard(front: 'Test', back: 'Answer', term: 'test'),
-      ];
+      final cards = [SwipeCard(front: 'Test', back: 'Answer', term: 'test')];
 
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: cards,
-          onAnswer: (_, known) async {
-            answeredKnown = known;
-          },
+      await tester.pumpWidget(
+        wrapInApp(
+          SwipeSession(
+            cards: cards,
+            onAnswer: (_, known) async {
+              answeredKnown = known;
+            },
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.text('Forgot'));
@@ -107,18 +104,20 @@ void main() {
       expect(answeredKnown, isFalse);
     });
 
-    testWidgets('completion screen shows when all cards answered', (tester) async {
-      final cards = [
-        SwipeCard(front: 'A', back: 'A-back', term: 'a'),
-      ];
+    testWidgets('completion screen shows when all cards answered', (
+      tester,
+    ) async {
+      final cards = [SwipeCard(front: 'A', back: 'A-back', term: 'a')];
 
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: cards,
-          onAnswer: (_, __) async {},
-          doneText: 'All done!',
+      await tester.pumpWidget(
+        wrapInApp(
+          SwipeSession(
+            cards: cards,
+            onAnswer: (_, __) async {},
+            doneText: 'All done!',
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.text('Knew it'));
@@ -134,12 +133,9 @@ void main() {
         SwipeCard(front: 'B', back: 'B-back', term: 'b'),
       ];
 
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: cards,
-          onAnswer: (_, __) async {},
-        ),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+      );
       await tester.pump();
 
       await tester.tap(find.text('Knew it'));
@@ -151,29 +147,31 @@ void main() {
     });
 
     testWidgets('renders custom emptyText', (tester) async {
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: const [],
-          onAnswer: (_, __) async {},
-          emptyText: 'Nothing to study',
+      await tester.pumpWidget(
+        wrapInApp(
+          SwipeSession(
+            cards: const [],
+            onAnswer: (_, __) async {},
+            emptyText: 'Nothing to study',
+          ),
         ),
-      ));
+      );
       await tester.pump();
       expect(find.text('Nothing to study'), findsOneWidget);
     });
 
     testWidgets('renders custom doneText', (tester) async {
-      final cards = [
-        SwipeCard(front: 'X', back: 'Y', term: 'x'),
-      ];
+      final cards = [SwipeCard(front: 'X', back: 'Y', term: 'x')];
 
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: cards,
-          onAnswer: (_, __) async {},
-          doneText: 'Finished!',
+      await tester.pumpWidget(
+        wrapInApp(
+          SwipeSession(
+            cards: cards,
+            onAnswer: (_, __) async {},
+            doneText: 'Finished!',
+          ),
         ),
-      ));
+      );
       await tester.pump();
 
       await tester.tap(find.text('Knew it'));
@@ -188,12 +186,9 @@ void main() {
         SwipeCard(front: 'B', back: 'B-back', term: 'b'),
       ];
 
-      await tester.pumpWidget(wrapInApp(
-        SwipeSession(
-          cards: cards,
-          onAnswer: (_, __) async {},
-        ),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+      );
       await tester.pump();
 
       expect(find.text('2 remaining'), findsOneWidget);

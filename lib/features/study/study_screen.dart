@@ -19,7 +19,10 @@ class StudyScreen extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('📚 Study', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+          const Text(
+            '📚 Study',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Card(
             child: Padding(
@@ -27,28 +30,80 @@ class StudyScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Practice now', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                  const Text(
+                    'Practice now',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Wrap(
-                    spacing: 8, runSpacing: 8,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       _practiceChip(context, '🧩', 'Quiz', () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _QuizPlaceholder()));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const _QuizPlaceholder(),
+                          ),
+                        );
                       }),
                       _practiceChip(context, '📘', 'New word', () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _PracticePlaceholder(kind: 'word', emoji: '📘', title: 'New Word')));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const _PracticePlaceholder(
+                              kind: 'word',
+                              emoji: '📘',
+                              title: 'New Word',
+                            ),
+                          ),
+                        );
                       }),
                       _practiceChip(context, '💬', 'Idiom', () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _PracticePlaceholder(kind: 'idiom', emoji: '💬', title: 'Idiom')));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const _PracticePlaceholder(
+                              kind: 'idiom',
+                              emoji: '💬',
+                              title: 'Idiom',
+                            ),
+                          ),
+                        );
                       }),
                       _practiceChip(context, '🔗', 'Collocation', () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _PracticePlaceholder(kind: 'collocation', emoji: '🔗', title: 'Collocation')));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const _PracticePlaceholder(
+                              kind: 'collocation',
+                              emoji: '🔗',
+                              title: 'Collocation',
+                            ),
+                          ),
+                        );
                       }),
                       _practiceChip(context, '📖', 'Story', () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _PracticePlaceholder(kind: 'story', emoji: '📖', title: 'Story')));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const _PracticePlaceholder(
+                              kind: 'story',
+                              emoji: '📖',
+                              title: 'Story',
+                            ),
+                          ),
+                        );
                       }),
                       _practiceChip(context, '💡', 'Tip', () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const _PracticePlaceholder(kind: 'tip', emoji: '💡', title: 'Tip')));
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const _PracticePlaceholder(
+                              kind: 'tip',
+                              emoji: '💡',
+                              title: 'Tip',
+                            ),
+                          ),
+                        );
                       }),
                     ],
                   ),
@@ -58,16 +113,31 @@ class StudyScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GrammarScreen())),
+            onTap: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const GrammarScreen())),
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Grammar lessons', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                    const Text(
+                      'Grammar lessons',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text('Learn one pattern at a time, from easy to advanced.', style: TextStyle(fontSize: 13, color: Theme.of(context).hintColor)),
+                    Text(
+                      'Learn one pattern at a time, from easy to advanced.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).hintColor,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -98,7 +168,12 @@ class StudyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _practiceChip(BuildContext context, String emoji, String label, VoidCallback? onTap) {
+  Widget _practiceChip(
+    BuildContext context,
+    String emoji,
+    String label,
+    VoidCallback? onTap,
+  ) {
     return ActionChip(
       avatar: Text(emoji),
       label: Text(label),
@@ -110,12 +185,18 @@ class StudyScreen extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
-        title: Text(deck.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(
+          deck.name,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
         subtitle: Text('${deck.mastered} mastered'),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) => DeckDetailScreen(deckId: deck.id, deckName: deck.name),
-        )),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) =>
+                DeckDetailScreen(deckId: deck.id, deckName: deck.name),
+          ),
+        ),
       ),
     );
   }
@@ -136,7 +217,11 @@ class _PracticePlaceholder extends StatelessWidget {
   final String kind;
   final String emoji;
   final String title;
-  const _PracticePlaceholder({required this.kind, required this.emoji, required this.title});
+  const _PracticePlaceholder({
+    required this.kind,
+    required this.emoji,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +237,18 @@ class _PracticePlaceholder extends StatelessWidget {
               children: [
                 Text(emoji, style: const TextStyle(fontSize: 48)),
                 const SizedBox(height: 16),
-                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text('Practice your $kind skills here.', style: TextStyle(color: Theme.of(context).hintColor)),
+                Text(
+                  'Practice your $kind skills here.',
+                  style: TextStyle(color: Theme.of(context).hintColor),
+                ),
               ],
             ),
           ),

@@ -8,7 +8,12 @@ class SwipeCard {
   final String? sub;
   final String back;
   final String term;
-  SwipeCard({required this.front, this.sub, required this.back, required this.term});
+  SwipeCard({
+    required this.front,
+    this.sub,
+    required this.back,
+    required this.term,
+  });
 }
 
 class SwipeSession extends StatefulWidget {
@@ -18,7 +23,14 @@ class SwipeSession extends StatefulWidget {
   final String emptyText;
   final VoidCallback? onFinish;
 
-  const SwipeSession({super.key, required this.cards, required this.onAnswer, this.doneText = 'Session complete!', this.emptyText = 'No cards to review.', this.onFinish});
+  const SwipeSession({
+    super.key,
+    required this.cards,
+    required this.onAnswer,
+    this.doneText = 'Session complete!',
+    this.emptyText = 'No cards to review.',
+    this.onFinish,
+  });
 
   @override
   State<SwipeSession> createState() => _SwipeSessionState();
@@ -63,7 +75,12 @@ class _SwipeSessionState extends State<SwipeSession> {
   @override
   Widget build(BuildContext context) {
     if (widget.cards.isEmpty) {
-      return Center(child: Text(widget.emptyText, style: TextStyle(color: Theme.of(context).hintColor)));
+      return Center(
+        child: Text(
+          widget.emptyText,
+          style: TextStyle(color: Theme.of(context).hintColor),
+        ),
+      );
     }
     if (_finished) {
       return _buildCompletion();
@@ -74,9 +91,15 @@ class _SwipeSessionState extends State<SwipeSession> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              Text('${_queue.length} remaining', style: TextStyle(color: Theme.of(context).hintColor)),
+              Text(
+                '${_queue.length} remaining',
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
               const Spacer(),
-              Text('$_knownCount known', style: const TextStyle(color: AppColors.success)),
+              Text(
+                '$_knownCount known',
+                style: const TextStyle(color: AppColors.success),
+              ),
             ],
           ),
         ),
@@ -96,11 +119,19 @@ class _SwipeSessionState extends State<SwipeSession> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.all(16),
-              transform: Matrix4.identity()..setTranslation(vm.Vector3(_dx, 0.0, 0.0))..rotateZ(_dx * 0.001),
+              transform: Matrix4.identity()
+                ..setTranslation(vm.Vector3(_dx, 0.0, 0.0))
+                ..rotateZ(_dx * 0.001),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(18),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Stack(
                 children: [
@@ -111,41 +142,90 @@ class _SwipeSessionState extends State<SwipeSession> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           if (_flipped) ...[
-                            Text(_queue.first.back, textAlign: TextAlign.center, style: const TextStyle(fontSize: 17)),
+                            Text(
+                              _queue.first.back,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 17),
+                            ),
                           ] else ...[
-                            Text(_queue.first.front, textAlign: TextAlign.center, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                            Text(
+                              _queue.first.front,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             if (_queue.first.sub != null) ...[
                               const SizedBox(height: 8),
-                              Text(_queue.first.sub!, style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor)),
+                              Text(
+                                _queue.first.sub!,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).hintColor,
+                                ),
+                              ),
                             ],
                           ],
                           const SizedBox(height: 16),
-                          Text(_flipped ? 'Tap to see front' : 'Tap to flip', style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+                          Text(
+                            _flipped ? 'Tap to see front' : 'Tap to flip',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
                   if (_dx > 30)
                     Positioned(
-                      top: 16, right: 16,
+                      top: 16,
+                      right: 16,
                       child: Opacity(
                         opacity: (_dx / 90).clamp(0.0, 1.0),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: AppColors.success, borderRadius: BorderRadius.circular(8)),
-                          child: const Text('KNEW IT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.success,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'KNEW IT',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   if (_dx < -30)
                     Positioned(
-                      top: 16, left: 16,
+                      top: 16,
+                      left: 16,
                       child: Opacity(
                         opacity: (-_dx / 90).clamp(0.0, 1.0),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: AppColors.danger, borderRadius: BorderRadius.circular(8)),
-                          child: const Text('FORGOT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.danger,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'FORGOT',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -163,13 +243,19 @@ class _SwipeSessionState extends State<SwipeSession> {
                 onPressed: () => _commit(false),
                 icon: const Icon(Icons.close),
                 label: const Text('Forgot'),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.danger,
+                  foregroundColor: Colors.white,
+                ),
               ),
               ElevatedButton.icon(
                 onPressed: () => _commit(true),
                 icon: const Icon(Icons.check),
                 label: const Text('Knew it'),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.success, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.success,
+                  foregroundColor: Colors.white,
+                ),
               ),
             ],
           ),
@@ -179,25 +265,38 @@ class _SwipeSessionState extends State<SwipeSession> {
   }
 
   Widget _buildCompletion() {
-    final pct = widget.cards.isNotEmpty ? (_knownCount / widget.cards.length) : 0.0;
+    final pct = widget.cards.isNotEmpty
+        ? (_knownCount / widget.cards.length)
+        : 0.0;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            width: 100, height: 100,
+            width: 100,
+            height: 100,
             child: CircularProgressIndicator(
               value: pct,
               strokeWidth: 8,
-              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.15),
             ),
           ),
           const SizedBox(height: 24),
-          Text(widget.doneText, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            widget.doneText,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text('$_knownCount known / ${widget.cards.length - _knownCount} forgot'),
+          Text(
+            '$_knownCount known / ${widget.cards.length - _knownCount} forgot',
+          ),
           const SizedBox(height: 24),
-          FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Done'),
+          ),
         ],
       ),
     );

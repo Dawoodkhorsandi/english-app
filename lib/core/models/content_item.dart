@@ -4,7 +4,12 @@ class ContentItem {
   final String text;
   final String sentAt;
 
-  ContentItem({required this.term, required this.meaning, required this.text, required this.sentAt});
+  ContentItem({
+    required this.term,
+    required this.meaning,
+    required this.text,
+    required this.sentAt,
+  });
 
   factory ContentItem.fromJson(Map<String, dynamic> json) {
     return ContentItem(

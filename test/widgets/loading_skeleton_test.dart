@@ -9,18 +9,14 @@ Widget wrapInApp(Widget child) => MaterialApp(home: Scaffold(body: child));
 void main() {
   group('LoadingSkeleton', () {
     testWidgets('renders correct number of skeleton lines', (tester) async {
-      await tester.pumpWidget(wrapInApp(
-        const LoadingSkeleton(lines: 5),
-      ));
+      await tester.pumpWidget(wrapInApp(const LoadingSkeleton(lines: 5)));
       await tester.pump();
 
       expect(find.byType(Container), findsAtLeastNWidgets(5));
     });
 
     testWidgets('uses shimmer animation', (tester) async {
-      await tester.pumpWidget(wrapInApp(
-        const LoadingSkeleton(lines: 2),
-      ));
+      await tester.pumpWidget(wrapInApp(const LoadingSkeleton(lines: 2)));
       await tester.pump();
 
       expect(find.byType(Shimmer), findsOneWidget);

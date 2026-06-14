@@ -9,7 +9,17 @@ class DictionaryEntry {
   final String sense;
   final String tags;
 
-  DictionaryEntry({required this.word, this.pos = '', this.pronunciation = '', this.persian = '', this.romanization = '', this.definition = '', this.example = '', this.sense = '', this.tags = ''});
+  DictionaryEntry({
+    required this.word,
+    this.pos = '',
+    this.pronunciation = '',
+    this.persian = '',
+    this.romanization = '',
+    this.definition = '',
+    this.example = '',
+    this.sense = '',
+    this.tags = '',
+  });
 
   factory DictionaryEntry.fromJson(Map<String, dynamic> json) {
     return DictionaryEntry(

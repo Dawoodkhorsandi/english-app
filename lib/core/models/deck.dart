@@ -7,7 +7,15 @@ class DeckProgress {
   final int due;
   final int progressPct;
 
-  DeckProgress({required this.id, required this.name, required this.description, required this.total, required this.mastered, required this.due, required this.progressPct});
+  DeckProgress({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.total,
+    required this.mastered,
+    required this.due,
+    required this.progressPct,
+  });
 
   factory DeckProgress.fromJson(Map<String, dynamic> json) {
     return DeckProgress(
@@ -31,7 +39,15 @@ class DeckStudyCard {
   final String mnemonic;
   final int box;
 
-  DeckStudyCard({required this.term, required this.definition, required this.example, this.persian = '', this.pronunciation = '', this.mnemonic = '', this.box = 1});
+  DeckStudyCard({
+    required this.term,
+    required this.definition,
+    required this.example,
+    this.persian = '',
+    this.pronunciation = '',
+    this.mnemonic = '',
+    this.box = 1,
+  });
 
   factory DeckStudyCard.fromJson(Map<String, dynamic> json) {
     return DeckStudyCard(
@@ -58,7 +74,18 @@ class DeckDetail {
   final String nextReview;
   final List<BoxDistribution> boxes;
 
-  DeckDetail({required this.id, required this.name, required this.description, required this.total, required this.mastered, required this.due, required this.newCount, required this.progressPct, required this.nextReview, required this.boxes});
+  DeckDetail({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.total,
+    required this.mastered,
+    required this.due,
+    required this.newCount,
+    required this.progressPct,
+    required this.nextReview,
+    required this.boxes,
+  });
 
   factory DeckDetail.fromJson(Map<String, dynamic> json) {
     return DeckDetail(
@@ -71,7 +98,9 @@ class DeckDetail {
       newCount: json['new'] ?? 0,
       progressPct: json['progressPct'] ?? 0,
       nextReview: json['nextReview'] ?? '',
-      boxes: (json['boxes'] as List? ?? []).map((b) => BoxDistribution.fromJson(b)).toList(),
+      boxes: (json['boxes'] as List? ?? [])
+          .map((b) => BoxDistribution.fromJson(b))
+          .toList(),
     );
   }
 }
@@ -81,7 +110,11 @@ class BoxDistribution {
   final String label;
   final int count;
 
-  BoxDistribution({required this.box, required this.label, required this.count});
+  BoxDistribution({
+    required this.box,
+    required this.label,
+    required this.count,
+  });
 
   factory BoxDistribution.fromJson(Map<String, dynamic> json) {
     return BoxDistribution(

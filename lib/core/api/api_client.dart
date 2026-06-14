@@ -8,13 +8,16 @@ class ApiClient {
   String? _telegramInitData;
   String? _jwtToken;
 
-  ApiClient({FlutterSecureStorage? storage}) : _storage = storage ?? const FlutterSecureStorage() {
-    _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: requestTimeout,
-      receiveTimeout: requestTimeout,
-      headers: {'Content-Type': 'application/json'},
-    ));
+  ApiClient({FlutterSecureStorage? storage})
+    : _storage = storage ?? const FlutterSecureStorage() {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        connectTimeout: requestTimeout,
+        receiveTimeout: requestTimeout,
+        headers: {'Content-Type': 'application/json'},
+      ),
+    );
     _dio.interceptors.add(_AuthInterceptor(this));
   }
 

@@ -5,7 +5,12 @@ import '../../../core/auth/auth_provider.dart';
 
 final reviewCardsProvider = FutureProvider<List<ReviewCard>>((ref) async {
   final client = ref.watch(apiClientProvider);
-  final response = await client.get(ApiEndpoints.reviewNext, queryParameters: {'limit': 30});
+  final response = await client.get(
+    ApiEndpoints.reviewNext,
+    queryParameters: {'limit': 30},
+  );
   final data = response.data;
-  return (data['items'] as List? ?? []).map((c) => ReviewCard.fromJson(c)).toList();
+  return (data['items'] as List? ?? [])
+      .map((c) => ReviewCard.fromJson(c))
+      .toList();
 });

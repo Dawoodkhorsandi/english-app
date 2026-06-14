@@ -8,7 +8,16 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
 import '../../shared/widgets/bookmark_star.dart';
 
-enum LibraryFilter { all, bookmarks, idiom, collocation, story, tip, quiz, dict }
+enum LibraryFilter {
+  all,
+  bookmarks,
+  idiom,
+  collocation,
+  story,
+  tip,
+  quiz,
+  dict,
+}
 
 class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});
@@ -53,18 +62,30 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('📚 Library', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+          const Text(
+            '📚 Library',
+            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           if (_filter == LibraryFilter.dict)
             TextField(
               controller: _searchController,
-              decoration: const InputDecoration(hintText: 'Search English -> Persian...', border: OutlineInputBorder(), prefixIcon: Icon(Icons.search)),
+              decoration: const InputDecoration(
+                hintText: 'Search English -> Persian...',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
               onChanged: _onSearchChanged,
             )
-          else if (_filter == LibraryFilter.all || _filter == LibraryFilter.bookmarks)
+          else if (_filter == LibraryFilter.all ||
+              _filter == LibraryFilter.bookmarks)
             TextField(
               controller: _searchController,
-              decoration: const InputDecoration(hintText: 'Search words or meanings...', border: OutlineInputBorder(), prefixIcon: Icon(Icons.search)),
+              decoration: const InputDecoration(
+                hintText: 'Search words or meanings...',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
               onChanged: _onSearchChanged,
             ),
           const SizedBox(height: 8),
@@ -72,14 +93,23 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             height: 36,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              children: LibraryFilter.values.map((f) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: FilterChip(
-                  label: Text(_filterLabel(f)),
-                  selected: _filter == f,
-                  onSelected: (_) => setState(() { _filter = f; _searchQuery = ''; _searchController.clear(); _offset = 0; }),
-                ),
-              )).toList(),
+              children: LibraryFilter.values
+                  .map(
+                    (f) => Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(_filterLabel(f)),
+                        selected: _filter == f,
+                        onSelected: (_) => setState(() {
+                          _filter = f;
+                          _searchQuery = '';
+                          _searchController.clear();
+                          _offset = 0;
+                        }),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
           const SizedBox(height: 12),
@@ -91,14 +121,22 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   String _filterLabel(LibraryFilter f) {
     switch (f) {
-      case LibraryFilter.all: return 'Words';
-      case LibraryFilter.bookmarks: return 'Bookmarks';
-      case LibraryFilter.idiom: return 'Idioms';
-      case LibraryFilter.collocation: return 'Collocations';
-      case LibraryFilter.story: return 'Stories';
-      case LibraryFilter.tip: return 'Tips';
-      case LibraryFilter.quiz: return 'Quizzes';
-      case LibraryFilter.dict: return 'Dict';
+      case LibraryFilter.all:
+        return 'Words';
+      case LibraryFilter.bookmarks:
+        return 'Bookmarks';
+      case LibraryFilter.idiom:
+        return 'Idioms';
+      case LibraryFilter.collocation:
+        return 'Collocations';
+      case LibraryFilter.story:
+        return 'Stories';
+      case LibraryFilter.tip:
+        return 'Tips';
+      case LibraryFilter.quiz:
+        return 'Quizzes';
+      case LibraryFilter.dict:
+        return 'Dict';
     }
   }
 
@@ -119,7 +157,12 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 
   Widget _buildWordList() {
-    final params = VocabParams(q: _searchQuery, bookmarks: _filter == LibraryFilter.bookmarks, offset: _offset, limit: _limit);
+    final params = VocabParams(
+      q: _searchQuery,
+      bookmarks: _filter == LibraryFilter.bookmarks,
+      offset: _offset,
+      limit: _limit,
+    );
     final vocabAsync = ref.watch(vocabProvider(params));
     return vocabAsync.when(
       loading: () => const LoadingSkeleton(lines: 5),
@@ -131,8 +174,12 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         _total = resp.total;
         if (resp.items.isEmpty) {
           return EmptyState(
-            icon: _filter == LibraryFilter.bookmarks ? Icons.star_border : Icons.menu_book,
-            title: _filter == LibraryFilter.bookmarks ? 'No bookmarks yet.' : 'No words learned yet.',
+            icon: _filter == LibraryFilter.bookmarks
+                ? Icons.star_border
+                : Icons.menu_book,
+            title: _filter == LibraryFilter.bookmarks
+                ? 'No bookmarks yet.'
+                : 'No words learned yet.',
             subtitle: 'Start learning to build your vocabulary.',
           );
         }
@@ -144,7 +191,10 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Center(
-                  child: TextButton(onPressed: _loadMore, child: const Text('Load more')),
+                  child: TextButton(
+                    onPressed: _loadMore,
+                    child: const Text('Load more'),
+                  ),
                 ),
               );
             }
@@ -156,7 +206,11 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   }
 
   Widget _wordRow(VocabItem w) {
-    final masteryIcon = w.mastery == 'mastered' ? '✅' : w.mastery == 'learning' ? '📖' : '🆕';
+    final masteryIcon = w.mastery == 'mastered'
+        ? '✅'
+        : w.mastery == 'learning'
+        ? '📖'
+        : '🆕';
     return ListTile(
       leading: Text(masteryIcon),
       title: Text(w.term, style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -186,9 +240,22 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           itemBuilder: (context, i) {
             final item = items[i];
             return ListTile(
-              title: Text(item.term, style: const TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text(item.meaning, maxLines: 2, overflow: TextOverflow.ellipsis),
-              trailing: Text(item.sentAt, style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+              title: Text(
+                item.term,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                item.meaning,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: Text(
+                item.sentAt,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
             );
           },
         );
@@ -217,9 +284,18 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           itemBuilder: (context, i) {
             final q = items[i];
             return ListTile(
-              leading: Icon(q.correct ? Icons.check_circle : Icons.cancel, color: q.correct ? Colors.green : Colors.red),
+              leading: Icon(
+                q.correct ? Icons.check_circle : Icons.cancel,
+                color: q.correct ? Colors.green : Colors.red,
+              ),
               title: Text(q.word),
-              trailing: Text(q.answeredAt, style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor)),
+              trailing: Text(
+                q.answeredAt,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).hintColor,
+                ),
+              ),
             );
           },
         );
@@ -262,21 +338,41 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(r['word'] ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                          r['word'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         if ((r['pos'] ?? '').isNotEmpty) ...[
                           const SizedBox(width: 8),
-                          Text(r['pos'], style: TextStyle(color: Theme.of(context).hintColor)),
+                          Text(
+                            r['pos'],
+                            style: TextStyle(
+                              color: Theme.of(context).hintColor,
+                            ),
+                          ),
                         ],
                       ],
                     ),
                     if ((r['pronunciation'] ?? '').isNotEmpty)
-                      Text(r['pronunciation'], style: TextStyle(color: Theme.of(context).hintColor)),
+                      Text(
+                        r['pronunciation'],
+                        style: TextStyle(color: Theme.of(context).hintColor),
+                      ),
                     if ((r['persian'] ?? '').isNotEmpty)
                       Text(r['persian'], style: const TextStyle(fontSize: 16)),
                     if ((r['definition'] ?? '').isNotEmpty)
                       Text(r['definition']),
                     if ((r['example'] ?? '').isNotEmpty)
-                      Text(r['example'], style: TextStyle(fontStyle: FontStyle.italic, color: Theme.of(context).hintColor)),
+                      Text(
+                        r['example'],
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
                   ],
                 ),
               ),

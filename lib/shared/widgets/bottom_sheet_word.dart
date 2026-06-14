@@ -7,13 +7,38 @@ class WordBottomSheet extends StatelessWidget {
   final String? persian;
   final String? example;
   final VoidCallback? onOpenDictionary;
-  const WordBottomSheet({super.key, required this.term, this.meaning, this.pronunciation, this.persian, this.example, this.onOpenDictionary});
+  const WordBottomSheet({
+    super.key,
+    required this.term,
+    this.meaning,
+    this.pronunciation,
+    this.persian,
+    this.example,
+    this.onOpenDictionary,
+  });
 
-  static void show(BuildContext context, {required String term, String? meaning, String? pronunciation, String? persian, String? example, VoidCallback? onOpenDictionary}) {
+  static void show(
+    BuildContext context, {
+    required String term,
+    String? meaning,
+    String? pronunciation,
+    String? persian,
+    String? example,
+    VoidCallback? onOpenDictionary,
+  }) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (_) => WordBottomSheet(term: term, meaning: meaning, pronunciation: pronunciation, persian: persian, example: example, onOpenDictionary: onOpenDictionary),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => WordBottomSheet(
+        term: term,
+        meaning: meaning,
+        pronunciation: pronunciation,
+        persian: persian,
+        example: example,
+        onOpenDictionary: onOpenDictionary,
+      ),
     );
   }
 
@@ -27,15 +52,25 @@ class WordBottomSheet extends StatelessWidget {
         children: [
           Center(
             child: Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(color: Theme.of(context).hintColor.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).hintColor.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          Text(term, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          Text(
+            term,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
           if (pronunciation != null && pronunciation!.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text(pronunciation!, style: TextStyle(color: Theme.of(context).hintColor)),
+            Text(
+              pronunciation!,
+              style: TextStyle(color: Theme.of(context).hintColor),
+            ),
           ],
           if (persian != null && persian!.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -47,7 +82,13 @@ class WordBottomSheet extends StatelessWidget {
           ],
           if (example != null && example!.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(example!, style: TextStyle(fontStyle: FontStyle.italic, color: Theme.of(context).hintColor)),
+            Text(
+              example!,
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
           ],
           const SizedBox(height: 16),
           if (onOpenDictionary != null)

@@ -52,7 +52,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(quiz.prompt, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                          quiz.prompt,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         ...quiz.options.asMap().entries.map((entry) {
                           final i = entry.key;
@@ -68,24 +74,39 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: Material(
-                              color: color ?? Theme.of(context).colorScheme.surface,
+                              color:
+                                  color ??
+                                  Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
-                                onTap: _result != null ? null : () {
-                                  HapticFeedback.lightImpact();
-                                  setState(() => _selected = i);
-                                },
+                                onTap: _result != null
+                                    ? null
+                                    : () {
+                                        HapticFeedback.lightImpact();
+                                        setState(() => _selected = i);
+                                      },
                                 child: Container(
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: _selected == i ? Theme.of(context).colorScheme.primary : Theme.of(context).dividerColor,
+                                      color: _selected == i
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                          : Theme.of(context).dividerColor,
                                     ),
                                   ),
-                                  child: Text(opt, style: TextStyle(fontWeight: _selected == i ? FontWeight.bold : FontWeight.normal)),
+                                  child: Text(
+                                    opt,
+                                    style: TextStyle(
+                                      fontWeight: _selected == i
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -102,7 +123,11 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     child: Center(
                       child: Text(
                         _result! ? '✅ Correct!' : '❌ Wrong!',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _result! ? Colors.green : Colors.red),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _result! ? Colors.green : Colors.red,
+                        ),
                       ),
                     ),
                   ),
@@ -112,11 +137,14 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     onPressed: _selected == null
                         ? null
                         : _result != null
-                            ? () {
-                                setState(() { _selected = null; _result = null; });
-                                ref.invalidate(quizProvider);
-                              }
-                            : _submitAnswer,
+                        ? () {
+                            setState(() {
+                              _selected = null;
+                              _result = null;
+                            });
+                            ref.invalidate(quizProvider);
+                          }
+                        : _submitAnswer,
                     child: Text(_result != null ? 'Next Question' : 'Submit'),
                   ),
                 ),
@@ -133,13 +161,16 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     if (quiz == null || _selected == null) return;
     final client = ref.read(apiClientProvider);
     try {
-      final response = await client.post(ApiEndpoints.quizAnswer, data: {
-        'word': quiz.word,
-        'correct': quiz.correct,
-        'exp': quiz.exp,
-        'token': quiz.token,
-        'answer': _selected!,
-      });
+      final response = await client.post(
+        ApiEndpoints.quizAnswer,
+        data: {
+          'word': quiz.word,
+          'correct': quiz.correct,
+          'exp': quiz.exp,
+          'token': quiz.token,
+          'answer': _selected!,
+        },
+      );
       final correct = response.data['correct'] ?? false;
       HapticFeedback.mediumImpact();
       setState(() => _result = correct);

@@ -35,25 +35,25 @@ void main() {
     });
 
     testWidgets('shows empty state when no quiz available', (tester) async {
-      await tester.pumpWidget(wrapInQuizApp(
-        QuizQuestion(available: false),
-      ));
+      await tester.pumpWidget(wrapInQuizApp(QuizQuestion(available: false)));
       await tester.pumpAndSettle();
       expect(find.text('No quiz available right now.'), findsOneWidget);
     });
 
     testWidgets('shows question and options when quiz loaded', (tester) async {
-      await tester.pumpWidget(wrapInQuizApp(
-        QuizQuestion(
-          available: true,
-          prompt: "What does 'test' mean?",
-          options: ['A trial', 'A test', 'A word', 'A thing'],
-          word: 'test',
-          correct: 1,
-          exp: 9999999999,
-          token: 'abc',
+      await tester.pumpWidget(
+        wrapInQuizApp(
+          QuizQuestion(
+            available: true,
+            prompt: "What does 'test' mean?",
+            options: ['A trial', 'A test', 'A word', 'A thing'],
+            word: 'test',
+            correct: 1,
+            exp: 9999999999,
+            token: 'abc',
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
       expect(find.text("What does 'test' mean?"), findsOneWidget);
       expect(find.text('A trial'), findsOneWidget);
@@ -63,40 +63,48 @@ void main() {
     });
 
     testWidgets('tapping an option selects it', (tester) async {
-      await tester.pumpWidget(wrapInQuizApp(
-        QuizQuestion(
-          available: true,
-          prompt: 'Question?',
-          options: ['Option A', 'Option B'],
-          word: 'test',
-          correct: 0,
-          exp: 9999999999,
-          token: 'abc',
+      await tester.pumpWidget(
+        wrapInQuizApp(
+          QuizQuestion(
+            available: true,
+            prompt: 'Question?',
+            options: ['Option A', 'Option B'],
+            word: 'test',
+            correct: 0,
+            exp: 9999999999,
+            token: 'abc',
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
-      final buttonBefore = tester.widget<FilledButton>(find.byType(FilledButton));
+      final buttonBefore = tester.widget<FilledButton>(
+        find.byType(FilledButton),
+      );
       expect(buttonBefore.onPressed, isNull);
 
       await tester.tap(find.text('Option B'));
       await tester.pump();
 
-      final buttonAfter = tester.widget<FilledButton>(find.byType(FilledButton));
+      final buttonAfter = tester.widget<FilledButton>(
+        find.byType(FilledButton),
+      );
       expect(buttonAfter.onPressed, isNotNull);
     });
 
     testWidgets('submit button disabled when nothing selected', (tester) async {
-      await tester.pumpWidget(wrapInQuizApp(
-        QuizQuestion(
-          available: true,
-          prompt: 'Question?',
-          options: ['A', 'B'],
-          word: 'test',
-          correct: 0,
-          exp: 9999999999,
-          token: 'abc',
+      await tester.pumpWidget(
+        wrapInQuizApp(
+          QuizQuestion(
+            available: true,
+            prompt: 'Question?',
+            options: ['A', 'B'],
+            word: 'test',
+            correct: 0,
+            exp: 9999999999,
+            token: 'abc',
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
       final button = tester.widget<FilledButton>(find.byType(FilledButton));
       expect(button.onPressed, isNull);

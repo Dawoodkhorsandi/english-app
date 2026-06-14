@@ -22,7 +22,10 @@ class ReviewScreen extends ConsumerWidget {
         children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text('🧠 Review', style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+            child: Text(
+              '🧠 Review',
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+            ),
           ),
           Expanded(
             child: cardsAsync.when(
@@ -32,7 +35,8 @@ class ReviewScreen extends ConsumerWidget {
               ),
               error: (e, s) => ErrorState(
                 message: 'Could not load review cards',
-                onRetry: () => ref.invalidate(review_providers.reviewCardsProvider),
+                onRetry: () =>
+                    ref.invalidate(review_providers.reviewCardsProvider),
               ),
               data: (cards) {
                 if (cards.isEmpty) {
@@ -42,20 +46,34 @@ class ReviewScreen extends ConsumerWidget {
                     subtitle: 'Come back later when new cards are available!',
                   );
                 }
-                final swipeCards = cards.map((c) => SwipeCard(
-                  front: c.term,
-                  sub: c.pronunciation.isNotEmpty ? c.pronunciation : null,
-                  back: [c.meaning, if (c.example.isNotEmpty) 'Example: ${c.example}', if (c.persian.isNotEmpty) c.persian].join('\n\n'),
-                  term: c.term,
-                )).toList();
+                final swipeCards = cards
+                    .map(
+                      (c) => SwipeCard(
+                        front: c.term,
+                        sub: c.pronunciation.isNotEmpty
+                            ? c.pronunciation
+                            : null,
+                        back: [
+                          c.meaning,
+                          if (c.example.isNotEmpty) 'Example: ${c.example}',
+                          if (c.persian.isNotEmpty) c.persian,
+                        ].join('\n\n'),
+                        term: c.term,
+                      ),
+                    )
+                    .toList();
                 return SwipeSession(
                   cards: swipeCards,
                   onAnswer: (card, known) async {
                     final client = ref.read(apiClientProvider);
-                    await client.post(ApiEndpoints.reviewAnswer, data: {'term': card.term, 'known': known});
+                    await client.post(
+                      ApiEndpoints.reviewAnswer,
+                      data: {'term': card.term, 'known': known},
+                    );
                   },
                   doneText: 'Review complete! Great job!',
-                  onFinish: () => ref.invalidate(review_providers.reviewCardsProvider),
+                  onFinish: () =>
+                      ref.invalidate(review_providers.reviewCardsProvider),
                 );
               },
             ),

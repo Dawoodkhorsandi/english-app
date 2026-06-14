@@ -23,27 +23,46 @@ class ActivityHeatmap extends StatelessWidget {
 
     Color cellColor(int level) {
       switch (level) {
-        case 0: return Theme.of(context).brightness == Brightness.dark ? Colors.grey[850]! : Colors.grey[200]!;
-        case 1: return AppColors.success.withValues(alpha: 0.3);
-        case 2: return AppColors.success.withValues(alpha: 0.5);
-        case 3: return AppColors.success.withValues(alpha: 0.7);
-        case 4: return AppColors.success;
-        default: return Colors.grey[200]!;
+        case 0:
+          return Theme.of(context).brightness == Brightness.dark
+              ? Colors.grey[850]!
+              : Colors.grey[200]!;
+        case 1:
+          return AppColors.success.withValues(alpha: 0.3);
+        case 2:
+          return AppColors.success.withValues(alpha: 0.5);
+        case 3:
+          return AppColors.success.withValues(alpha: 0.7);
+        case 4:
+          return AppColors.success;
+        default:
+          return Colors.grey[200]!;
       }
     }
 
     return Wrap(
-      spacing: 3, runSpacing: 3,
+      spacing: 3,
+      runSpacing: 3,
       children: days.map((day) {
-        final key = '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+        final key =
+            '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
         final count = activityCounts[key] ?? 0;
-        final isToday = day.year == now.year && day.month == now.month && day.day == now.day;
+        final isToday =
+            day.year == now.year &&
+            day.month == now.month &&
+            day.day == now.day;
         return Container(
-          width: 12, height: 12,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: cellColor(level(count)),
             borderRadius: BorderRadius.circular(2),
-            border: isToday ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1.5) : null,
+            border: isToday
+                ? Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 1.5,
+                  )
+                : null,
           ),
         );
       }).toList(),

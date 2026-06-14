@@ -54,7 +54,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
                     ),
-                    onFieldSubmitted: (v) => _updateSetting(ref, 'name', v.trim()),
+                    onFieldSubmitted: (v) =>
+                        _updateSetting(ref, 'name', v.trim()),
                   ),
                 ),
               ),
@@ -65,18 +66,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Level', style: TextStyle(fontWeight: FontWeight.w600)),
+                      const Text(
+                        'Level',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
-                        children: settings.levels.map((l) => ChoiceChip(
-                          label: Text(settings.levelLabels[l] ?? l),
-                          selected: settings.level == l,
-                          onSelected: (_) {
-                            HapticFeedback.selectionClick();
-                            _updateSetting(ref, 'level', l);
-                          },
-                        )).toList(),
+                        children: settings.levels
+                            .map(
+                              (l) => ChoiceChip(
+                                label: Text(settings.levelLabels[l] ?? l),
+                                selected: settings.level == l,
+                                onSelected: (_) {
+                                  HapticFeedback.selectionClick();
+                                  _updateSetting(ref, 'level', l);
+                                },
+                              ),
+                            )
+                            .toList(),
                       ),
                     ],
                   ),
@@ -99,16 +107,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       title: const Text('Send interval'),
                       subtitle: Text('${settings.interval} minutes'),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _showIntervalDialog(context, ref, settings.interval),
+                      onTap: () =>
+                          _showIntervalDialog(context, ref, settings.interval),
                     ),
-                    ...settings.toggles.entries.map((entry) => SwitchListTile(
-                      title: Text(_toggleLabel(entry.key)),
-                      value: entry.value,
-                      onChanged: (v) {
-                        HapticFeedback.lightImpact();
-                        _updateSetting(ref, entry.key, v);
-                      },
-                    )),
+                    ...settings.toggles.entries.map(
+                      (entry) => SwitchListTile(
+                        title: Text(_toggleLabel(entry.key)),
+                        value: entry.value,
+                        onChanged: (v) {
+                          HapticFeedback.lightImpact();
+                          _updateSetting(ref, entry.key, v);
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -136,20 +147,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('Send interval'),
-        children: intervals.map((m) => SimpleDialogOption(
-          onPressed: () {
-            HapticFeedback.selectionClick();
-            Navigator.pop(ctx);
-            _updateSetting(ref, 'interval', m);
-          },
-          child: Row(
-            children: [
-              if (m == current) const Icon(Icons.check, size: 18, color: Colors.green) else const SizedBox(width: 18),
-              const SizedBox(width: 12),
-              Text('$m minutes'),
-            ],
-          ),
-        )).toList(),
+        children: intervals
+            .map(
+              (m) => SimpleDialogOption(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.pop(ctx);
+                  _updateSetting(ref, 'interval', m);
+                },
+                child: Row(
+                  children: [
+                    if (m == current)
+                      const Icon(Icons.check, size: 18, color: Colors.green)
+                    else
+                      const SizedBox(width: 18),
+                    const SizedBox(width: 12),
+                    Text('$m minutes'),
+                  ],
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
@@ -157,7 +175,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _updateSetting(WidgetRef ref, String key, dynamic value) async {
     final client = ref.read(apiClientProvider);
     try {
-      await client.post(ApiEndpoints.settings, data: {'key': key, 'value': value});
+      await client.post(
+        ApiEndpoints.settings,
+        data: {'key': key, 'value': value},
+      );
       ref.invalidate(settingsProvider);
     } catch (e) {
       // ignore
@@ -166,16 +187,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   String _toggleLabel(String key) {
     switch (key) {
-      case 'tts': return 'Pronunciation audio';
-      case 'tips': return 'Daily grammar tips';
-      case 'quiz': return 'Quiz reminders';
-      case 'idiom': return 'Idiom of the day';
-      case 'collocation': return 'Collocation of the day';
-      case 'story': return 'Mini stories';
-      case 'review': return 'Review reminders';
-      case 'daily_review': return 'Daily review';
-      case 'digest': return 'Weekly digest';
-      default: return key;
+      case 'tts':
+        return 'Pronunciation audio';
+      case 'tips':
+        return 'Daily grammar tips';
+      case 'quiz':
+        return 'Quiz reminders';
+      case 'idiom':
+        return 'Idiom of the day';
+      case 'collocation':
+        return 'Collocation of the day';
+      case 'story':
+        return 'Mini stories';
+      case 'review':
+        return 'Review reminders';
+      case 'daily_review':
+        return 'Daily review';
+      case 'digest':
+        return 'Weekly digest';
+      default:
+        return key;
     }
   }
 }

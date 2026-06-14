@@ -15,23 +15,25 @@ void main() {
     });
 
     testWidgets('renders custom message', (tester) async {
-      await tester.pumpWidget(wrapInApp(
-        const ErrorState(message: 'Network timeout'),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(const ErrorState(message: 'Network timeout')),
+      );
 
       expect(find.text('Network timeout'), findsOneWidget);
     });
 
     testWidgets('renders retry button when onRetry provided', (tester) async {
-      await tester.pumpWidget(wrapInApp(
-        const ErrorState(onRetry: SizedBox.new),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(const ErrorState(onRetry: SizedBox.new)),
+      );
 
       expect(find.text('Retry'), findsOneWidget);
       expect(find.byType(FilledButton), findsOneWidget);
     });
 
-    testWidgets('does not render retry button when onRetry is null', (tester) async {
+    testWidgets('does not render retry button when onRetry is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(wrapInApp(const ErrorState()));
 
       expect(find.text('Retry'), findsNothing);
@@ -39,9 +41,9 @@ void main() {
 
     testWidgets('retry button calls onRetry callback', (tester) async {
       var tapped = false;
-      await tester.pumpWidget(wrapInApp(
-        ErrorState(onRetry: () => tapped = true),
-      ));
+      await tester.pumpWidget(
+        wrapInApp(ErrorState(onRetry: () => tapped = true)),
+      );
 
       await tester.tap(find.text('Retry'));
       expect(tapped, isTrue);

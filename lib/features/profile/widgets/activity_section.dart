@@ -14,7 +14,10 @@ class ActivitySection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Activity', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            const Text(
+              'Activity',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -34,7 +37,10 @@ class ActivitySection extends StatelessWidget {
   Widget _statItem(String value, String label) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
         Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );

@@ -8,7 +8,16 @@ class Achievement {
   final int progress;
   final int target;
 
-  Achievement({required this.id, required this.name, required this.icon, required this.description, required this.category, required this.unlocked, required this.progress, required this.target});
+  Achievement({
+    required this.id,
+    required this.name,
+    required this.icon,
+    required this.description,
+    required this.category,
+    required this.unlocked,
+    required this.progress,
+    required this.target,
+  });
 
   factory Achievement.fromJson(Map<String, dynamic> json) {
     return Achievement(

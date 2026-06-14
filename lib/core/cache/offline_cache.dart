@@ -7,7 +7,10 @@ class OfflineCache {
 
   static Future<void> save(String key, dynamic data) async {
     final prefs = await SharedPreferences.getInstance();
-    final entry = {'data': data, 'timestamp': DateTime.now().millisecondsSinceEpoch};
+    final entry = {
+      'data': data,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    };
     await prefs.setString('$_prefix$key', jsonEncode(entry));
   }
 
@@ -17,7 +20,8 @@ class OfflineCache {
     if (raw == null) return null;
     try {
       final entry = jsonDecode(raw) as Map<String, dynamic>;
-      final age = DateTime.now().millisecondsSinceEpoch - (entry['timestamp'] as int);
+      final age =
+          DateTime.now().millisecondsSinceEpoch - (entry['timestamp'] as int);
       if (age > (maxAge ?? _duration).inMilliseconds) return null;
       return entry['data'] as T;
     } catch (e) {

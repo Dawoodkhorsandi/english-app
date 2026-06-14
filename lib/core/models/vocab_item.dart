@@ -4,7 +4,12 @@ class VocabItem {
   final String mastery;
   final bool bookmarked;
 
-  VocabItem({required this.term, required this.meaning, required this.mastery, required this.bookmarked});
+  VocabItem({
+    required this.term,
+    required this.meaning,
+    required this.mastery,
+    required this.bookmarked,
+  });
 
   factory VocabItem.fromJson(Map<String, dynamic> json) {
     return VocabItem(

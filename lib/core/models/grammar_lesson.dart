@@ -9,7 +9,17 @@ class GrammarLesson {
   final String tip;
   final List<PracticeQuestion> practice;
 
-  GrammarLesson({required this.id, required this.order, required this.level, required this.title, this.pattern = '', this.explanation = '', this.examples = const [], this.tip = '', this.practice = const []});
+  GrammarLesson({
+    required this.id,
+    required this.order,
+    required this.level,
+    required this.title,
+    this.pattern = '',
+    this.explanation = '',
+    this.examples = const [],
+    this.tip = '',
+    this.practice = const [],
+  });
 
   factory GrammarLesson.fromJson(Map<String, dynamic> json) {
     return GrammarLesson(
@@ -21,7 +31,9 @@ class GrammarLesson {
       explanation: json['explanation'] ?? '',
       examples: List<String>.from(json['examples'] ?? []),
       tip: json['tip'] ?? '',
-      practice: (json['practice'] as List? ?? []).map((p) => PracticeQuestion.fromJson(p)).toList(),
+      practice: (json['practice'] as List? ?? [])
+          .map((p) => PracticeQuestion.fromJson(p))
+          .toList(),
     );
   }
 }
@@ -31,7 +43,11 @@ class PracticeQuestion {
   final List<String> options;
   final int answer;
 
-  PracticeQuestion({required this.q, required this.options, required this.answer});
+  PracticeQuestion({
+    required this.q,
+    required this.options,
+    required this.answer,
+  });
 
   factory PracticeQuestion.fromJson(Map<String, dynamic> json) {
     return PracticeQuestion(

@@ -28,10 +28,21 @@ class ProfileDetailScreen extends ConsumerWidget {
                   children: [
                     CircleAvatar(
                       radius: 32,
-                      child: Text(profile.name.isNotEmpty ? profile.name[0].toUpperCase() : '?', style: const TextStyle(fontSize: 24)),
+                      child: Text(
+                        profile.name.isNotEmpty
+                            ? profile.name[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(fontSize: 24),
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    Text(profile.name.isNotEmpty ? profile.name : 'Anonymous', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text(
+                      profile.name.isNotEmpty ? profile.name : 'Anonymous',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -42,10 +53,17 @@ class ProfileDetailScreen extends ConsumerWidget {
                         if (!profile.isMe) ...[
                           const SizedBox(width: 12),
                           IconButton(
-                            icon: Icon(profile.kudos.gaveByMe ? Icons.thumb_up : Icons.thumb_up_outlined),
+                            icon: Icon(
+                              profile.kudos.gaveByMe
+                                  ? Icons.thumb_up
+                                  : Icons.thumb_up_outlined,
+                            ),
                             onPressed: () async {
                               final client = ref.read(apiClientProvider);
-                              await client.post(ApiEndpoints.kudos, data: {'id': userId});
+                              await client.post(
+                                ApiEndpoints.kudos,
+                                data: {'id': userId},
+                              );
                               ref.invalidate(profileProvider(userId));
                             },
                           ),
@@ -83,16 +101,28 @@ class ProfileDetailScreen extends ConsumerWidget {
                   child: Container(
                     height: 8,
                     margin: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           flex: (mePct * 100).toInt(),
-                          child: Container(decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(4))),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
                         ),
                         Expanded(
                           flex: ((1 - mePct) * 100).toInt(),
-                          child: Container(decoration: BoxDecoration(color: Colors.grey[400], borderRadius: BorderRadius.circular(4))),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[400],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
                         ),
                       ],
                     ),

@@ -16,7 +16,8 @@ class GrammarScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => const Center(child: Text('Error loading lessons')),
         data: (lessons) {
-          if (lessons.isEmpty) return const Center(child: Text('No lessons available.'));
+          if (lessons.isEmpty)
+            return const Center(child: Text('No lessons available.'));
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: lessons.length,
@@ -26,12 +27,17 @@ class GrammarScreen extends ConsumerWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   leading: CircleAvatar(child: Text('${l.order}')),
-                  title: Text(l.title, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  title: Text(
+                    l.title,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                   subtitle: Text(l.level),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => GrammarLessonScreen(lessonId: l.id),
-                  )),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => GrammarLessonScreen(lessonId: l.id),
+                    ),
+                  ),
                 ),
               );
             },

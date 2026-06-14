@@ -34,10 +34,19 @@ class ProfileScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    StreakRing(streak: stats.currentStreak, longest: stats.longestStreak),
+                    StreakRing(
+                      streak: stats.currentStreak,
+                      longest: stats.longestStreak,
+                    ),
                     const SizedBox(height: 16),
-                    Text('Level: ${stats.level}', style: Theme.of(context).textTheme.titleMedium),
-                    Text('Member since ${stats.memberSince}', style: TextStyle(color: Theme.of(context).hintColor)),
+                    Text(
+                      'Level: ${stats.level}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      'Member since ${stats.memberSince}',
+                      style: TextStyle(color: Theme.of(context).hintColor),
+                    ),
                   ],
                 ),
               ),
@@ -51,15 +60,25 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Quiz Accuracy', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Quiz Accuracy',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     LinearProgressIndicator(
                       value: stats.quizPct / 100,
                       minHeight: 8,
-                      backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.15),
                     ),
                     const SizedBox(height: 4),
-                    Text('${stats.quizCorrect}/${stats.quizAnswered} (${stats.quizPct}%)'),
+                    Text(
+                      '${stats.quizCorrect}/${stats.quizAnswered} (${stats.quizPct}%)',
+                    ),
                   ],
                 ),
               ),
@@ -67,7 +86,11 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             ActivitySection(stats: stats),
             const SizedBox(height: 16),
-            AchievementSection(achievements: stats.achievements, unlocked: stats.achUnlocked, total: stats.achTotal),
+            AchievementSection(
+              achievements: stats.achievements,
+              unlocked: stats.achUnlocked,
+              total: stats.achTotal,
+            ),
           ],
         ),
       ),

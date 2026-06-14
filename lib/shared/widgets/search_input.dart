@@ -5,7 +5,12 @@ class SearchInput extends StatefulWidget {
   final String placeholder;
   final ValueChanged<String> onSearch;
   final Duration debounce;
-  const SearchInput({super.key, this.placeholder = 'Search...', required this.onSearch, this.debounce = const Duration(milliseconds: 250)});
+  const SearchInput({
+    super.key,
+    this.placeholder = 'Search...',
+    required this.onSearch,
+    this.debounce = const Duration(milliseconds: 250),
+  });
 
   @override
   State<SearchInput> createState() => _SearchInputState();

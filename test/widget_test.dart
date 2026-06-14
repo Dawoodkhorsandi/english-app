@@ -9,12 +9,10 @@ import 'package:english_app/core/api/api_client.dart';
 void main() {
   testWidgets('App renders MaterialApp', (WidgetTester tester) async {
     final mockClient = ApiClient();
-    
+
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(mockClient),
-        ],
+        overrides: [apiClientProvider.overrideWithValue(mockClient)],
         child: const EnglishApp(),
       ),
     );

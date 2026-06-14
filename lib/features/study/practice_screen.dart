@@ -11,12 +11,15 @@ class PracticeScreen extends ConsumerWidget {
     final practiceAsync = ref.watch(practiceProvider(kind));
 
     return Scaffold(
-      appBar: AppBar(title: Text('${kind[0].toUpperCase()}${kind.substring(1)} Practice')),
+      appBar: AppBar(
+        title: Text('${kind[0].toUpperCase()}${kind.substring(1)} Practice'),
+      ),
       body: practiceAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error loading $kind')),
         data: (data) {
-          if (data == null) return Center(child: Text('No $kind available right now.'));
+          if (data == null)
+            return Center(child: Text('No $kind available right now.'));
           return Center(
             child: Card(
               margin: const EdgeInsets.all(16),
@@ -25,9 +28,18 @@ class PracticeScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(data['term'] ?? '', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                    Text(
+                      data['term'] ?? '',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 16),
-                    Text(data['text'] ?? '', style: const TextStyle(fontSize: 16)),
+                    Text(
+                      data['text'] ?? '',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ],
                 ),
               ),

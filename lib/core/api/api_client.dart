@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'package:chucker/chucker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../constants.dart';
@@ -19,6 +20,7 @@ class ApiClient {
         headers: {'Content-Type': 'application/json'},
       ),
     );
+    _dio.interceptors.add(ChuckerDioInterceptor());
     _dio.interceptors.add(
       LogInterceptor(
         requestBody: true,

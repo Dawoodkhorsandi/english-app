@@ -48,14 +48,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Future<void> _openTelegram() async {
     final botUsername = botTelegramUsername.replaceFirst('@', '');
     final uri = Uri.parse('https://t.me/$botUsername?startapp=link_account');
-    if (await canLaunchUrl(uri)) {
-      setState(() => _waitingForTelegram = true);
+    setState(() => _waitingForTelegram = true);
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    } catch (e) {
       if (mounted) {
+        setState(() => _waitingForTelegram = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Could not open Telegram. Please install Telegram.'),
+            content: Text('Could not open Telegram. Please install Telegram from the Play Store.'),
           ),
         );
       }

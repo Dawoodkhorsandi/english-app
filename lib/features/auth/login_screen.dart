@@ -210,7 +210,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           final build = info?.buildNumber ?? '';
           // Surface the build number and build mode so a stale or debug sideload
           // is obvious at a glance (this caused a "version doesn't match" report).
-          final mode = kReleaseMode
+          const mode = kReleaseMode
               ? ''
               : (kProfileMode ? ' · profile' : ' · debug');
           final label = version.isEmpty
@@ -245,6 +245,10 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
     with WidgetsBindingObserver {
   final _codeController = TextEditingController();
   bool _hasOpenedTelegram = false;
+  // Guards so the resume-driven auto-detect can't resubmit a code: codes are
+  // single-use, so resubmitting the same one always fails with "already used".
+  bool _submitting = false;
+  String? _lastAttempted;
 
   @override
   void initState() {
@@ -275,33 +279,38 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
       final data = await Clipboard.getData(Clipboard.kTextPlain);
       final text = data?.text?.trim().toUpperCase();
       if (text != null && RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(text)) {
-        dev.log(
-          '[TelegramCode] Auto-detected code: $text',
-          name: 'TelegramCode',
-        );
-        _codeController.text = text;
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Code detected: $text'),
-              backgroundColor: Colors.green,
-            ),
-          );
+        // Don't re-fire for a code we've already attempted — the resume
+        // lifecycle event fires repeatedly and the code is single-use.
+        if (text == _lastAttempted ||
+            _submitting ||
+            ref.read(authProvider).isAuthenticated) {
+          return;
         }
+        dev.log('[TelegramCode] Auto-detected code', name: 'TelegramCode');
+        _codeController.text = text;
         _submitCode(text);
       }
     } catch (e) {
-      dev.log(
-        '[TelegramCode] Clipboard check failed: $e',
-        name: 'TelegramCode',
-      );
+      dev.log('[TelegramCode] Clipboard check failed', name: 'TelegramCode');
     }
   }
 
   Future<void> _submitCode(String code) async {
+    // One attempt per code; ignore duplicates and overlapping submits.
+    if (_submitting || code == _lastAttempted) return;
+    setState(() {
+      _submitting = true;
+      _lastAttempted = code;
+    });
     final auth = ref.read(authProvider.notifier);
     final success = await auth.loginWithShortCode(code);
-    if (!success && mounted) {
+    if (!mounted) return;
+    setState(() => _submitting = false);
+    if (success) {
+      // Authenticated — leave this screen so the auth gate shows the app. The
+      // ref.listen in build() also covers this, but pop here for immediacy.
+      Navigator.of(context).popUntil((r) => r.isFirst);
+    } else {
       final error = ref.read(authProvider).error;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -334,6 +343,15 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
+
+    // Once authenticated, leave this screen so the auth gate shows the app
+    // (covers the auto-detect path and guards against lingering on a stale
+    // screen that would keep resubmitting a used code).
+    ref.listen<AuthState>(authProvider, (prev, next) {
+      if (next.isAuthenticated && mounted) {
+        Navigator.of(context).popUntil((r) => r.isFirst);
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Telegram Login')),

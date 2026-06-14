@@ -84,16 +84,17 @@ class ApiClient {
     if (token == null) return false;
     try {
       // A bare Dio (no interceptors) so a 401 on refresh can't recurse back in.
-      final res = await Dio(
-        BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: requestTimeout,
-          receiveTimeout: requestTimeout,
-        ),
-      ).post(
-        '/api/auth/refresh',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      final res =
+          await Dio(
+            BaseOptions(
+              baseUrl: baseUrl,
+              connectTimeout: requestTimeout,
+              receiveTimeout: requestTimeout,
+            ),
+          ).post(
+            '/api/auth/refresh',
+            options: Options(headers: {'Authorization': 'Bearer $token'}),
+          );
       final newToken = res.data is Map ? res.data['token'] as String? : null;
       if (newToken != null && newToken.isNotEmpty) {
         setJwtToken(newToken);

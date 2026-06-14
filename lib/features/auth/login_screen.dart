@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/constants.dart';
@@ -39,6 +41,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     super.dispose();
   }
 
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final auth = ref.read(authProvider.notifier);
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (_isLogin) {
+      await auth.loginWithEmail(email, password);
+    } else {
+      final name = _nameController.text.trim();
+      await auth.register(email, password, name);
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -53,9 +68,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   Future<void> _tryAutoDetectCode() async {
     try {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      final text = data?.text?.trim();
+      final text = data?.text?.trim().toUpperCase();
       if (text != null && RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(text)) {
         dev.log('[Login] Auto-detected code: $text', name: 'Login');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Code detected: $text — signing in...'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
         final auth = ref.read(authProvider.notifier);
         await auth.loginWithShortCode(text);
       }
@@ -286,6 +309,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   TextField(
                     controller: _codeController,
                     textAlign: TextAlign.center,
+                    textCapitalization: TextCapitalization.characters,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -301,7 +325,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.vpn_key),
                     ),
-                    maxLength: 8,
+                    maxLength: 7,
                     buildCounter:
                         (
                           context, {
@@ -310,17 +334,67 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           required maxLength,
                         }) => null,
                     onChanged: (v) {
-                      if (v.length == 8 &&
-                          RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(v)) {
-                        ref.read(authProvider.notifier).loginWithShortCode(v);
+                      final upper = v.toUpperCase();
+                      if (v != upper) {
+                        _codeController.value = TextEditingValue(
+                          text: upper,
+                          selection: TextSelection.collapsed(
+                            offset: upper.length,
+                          ),
+                        );
+                      }
+                      if (upper.length == 7 &&
+                          RegExp(
+                            r'^[A-Z0-9]{3}-[A-Z0-9]{3}$',
+                          ).hasMatch(upper)) {
+                        ref
+                            .read(authProvider.notifier)
+                            .loginWithShortCode(upper);
                       }
                     },
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: auth.isLoading
+                        ? null
+                        : () {
+                            final code = _codeController.text
+                                .trim()
+                                .toUpperCase();
+                            if (code.isNotEmpty) {
+                              ref
+                                  .read(authProvider.notifier)
+                                  .loginWithShortCode(code);
+                            }
+                          },
+                    icon: const Icon(Icons.login),
+                    label: const Text('Sign In with Code'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: FutureBuilder<PackageInfo>(
+        future: PackageInfo.fromPlatform(),
+        builder: (context, snapshot) {
+          final version = snapshot.data?.version ?? '';
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'English Muscle Memory v$version',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).hintColor,
+                fontSize: 12,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

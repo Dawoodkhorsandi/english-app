@@ -1,7 +1,6 @@
 import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../api/api_client.dart';
 
 enum AuthMethod { telegram, email, none }
@@ -43,11 +42,8 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _apiClient;
-  final FlutterSecureStorage _storage;
 
-  AuthNotifier(this._apiClient, [FlutterSecureStorage? storage])
-    : _storage = storage ?? const FlutterSecureStorage(),
-      super(AuthState()) {
+  AuthNotifier(this._apiClient) : super(AuthState()) {
     _init();
   }
 

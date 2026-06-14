@@ -104,7 +104,7 @@ void main() {
     test('initial state is unauthenticated', () async {
       final storage = _FakeStorage();
       final client = _FakeApiClient(storage: storage);
-      final notifier = AuthNotifier(client, storage);
+      final notifier = AuthNotifier(client);
       await Future.delayed(Duration.zero);
 
       expect(notifier.state.isAuthenticated, false);
@@ -119,7 +119,7 @@ void main() {
         'name': 'Test User',
       });
 
-      final notifier = AuthNotifier(client, storage);
+      final notifier = AuthNotifier(client);
       await Future.delayed(Duration.zero);
 
       await notifier.loginWithEmail('test@example.com', 'password123');
@@ -136,7 +136,7 @@ void main() {
       final client = _FakeApiClient(storage: storage);
       client.setPostError(Exception('Network error'));
 
-      final notifier = AuthNotifier(client, storage);
+      final notifier = AuthNotifier(client);
       await Future.delayed(Duration.zero);
 
       await notifier.loginWithEmail('test@example.com', 'wrong');
@@ -157,7 +157,7 @@ void main() {
         'name': 'Test User',
       });
 
-      final notifier = AuthNotifier(client, storage);
+      final notifier = AuthNotifier(client);
       await Future.delayed(Duration.zero);
 
       await notifier.loginWithEmail('test@example.com', 'password123');

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as dev;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -204,11 +205,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       bottomNavigationBar: FutureBuilder<PackageInfo>(
         future: PackageInfo.fromPlatform(),
         builder: (context, snapshot) {
-          final version = snapshot.data?.version ?? '';
+          final info = snapshot.data;
+          final version = info?.version ?? '';
+          final build = info?.buildNumber ?? '';
+          // Surface the build number and build mode so a stale or debug sideload
+          // is obvious at a glance (this caused a "version doesn't match" report).
+          final mode = kReleaseMode
+              ? ''
+              : (kProfileMode ? ' · profile' : ' · debug');
+          final label = version.isEmpty
+              ? 'English Muscle Memory'
+              : 'English Muscle Memory v$version'
+                    '${build.isEmpty ? '' : ' ($build)'}$mode';
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'English Muscle Memory v$version',
+              label,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Theme.of(context).hintColor,
@@ -354,9 +366,9 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
                       SizedBox(height: 8),
                       Text('1. Tap "Open Telegram" below'),
                       SizedBox(height: 4),
-                      Text('2. In the bot, tap "Get Login Code"'),
+                      Text('2. Send /login to the bot'),
                       SizedBox(height: 4),
-                      Text('3. Tap "Copy Code" in the bot'),
+                      Text('3. Copy the code it replies with'),
                       SizedBox(height: 4),
                       Text('4. Return here — code detected automatically'),
                       SizedBox(height: 4),

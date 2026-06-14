@@ -8,8 +8,10 @@ import '../constants.dart';
 class ApiClient {
   late final Dio _dio;
   final FlutterSecureStorage _storage;
-  String? _telegramInitData;
   String? _jwtToken;
+  // Single-flight guard so a burst of concurrent 401s triggers at most one
+  // token refresh rather than a stampede.
+  Future<bool>? _refreshing;
 
   ApiClient({FlutterSecureStorage? storage})
     : _storage = storage ?? const FlutterSecureStorage() {
@@ -22,14 +24,18 @@ class ApiClient {
       ),
     );
     if (kDebugMode) {
+      // Headers and bodies are intentionally NOT logged: auth requests carry
+      // passwords and responses carry JWTs. Log only method, path, status and
+      // timing so debug builds never leak credentials to the console/logcat.
       _dio.interceptors.add(
         PrettyDioLogger(
-          requestHeader: true,
-          requestBody: true,
-          responseHeader: true,
-          responseBody: true,
+          request: true,
+          requestHeader: false,
+          requestBody: false,
+          responseHeader: false,
+          responseBody: false,
           error: true,
-          compact: false,
+          compact: true,
           maxWidth: 90,
         ),
       );
@@ -37,42 +43,25 @@ class ApiClient {
     _dio.interceptors.add(_AuthInterceptor(this));
   }
 
-  void setTelegramInitData(String initData) {
-    _telegramInitData = initData;
-    _storage.write(key: 'telegram_init_data', value: initData);
-    dev.log(
-      '[Auth] Telegram initData set (${initData.length} chars)',
-      name: 'ApiClient',
-    );
-  }
-
   void setJwtToken(String token) {
     _jwtToken = token;
     _storage.write(key: 'jwt_token', value: token);
-    dev.log('[Auth] JWT token set', name: 'ApiClient');
   }
 
   Future<void> loadStoredAuth() async {
     _jwtToken = await _storage.read(key: 'jwt_token');
-    _telegramInitData = await _storage.read(key: 'telegram_init_data');
-    dev.log(
-      '[Auth] Loaded: JWT=${_jwtToken != null}, Telegram=${_telegramInitData != null}',
-      name: 'ApiClient',
-    );
+    // Clear any credential left by the retired Telegram-initData login path.
+    await _storage.delete(key: 'telegram_init_data');
   }
 
   void clearAuth() {
-    _telegramInitData = null;
     _jwtToken = null;
     _storage.delete(key: 'jwt_token');
-    _storage.delete(key: 'telegram_init_data');
-    dev.log('[Auth] Cleared', name: 'ApiClient');
   }
 
-  bool get isAuthenticated => _telegramInitData != null || _jwtToken != null;
+  bool get isAuthenticated => _jwtToken != null;
 
   String? get currentToken => _jwtToken;
-  String? get currentInitData => _telegramInitData;
 
   Dio get dio => _dio;
 
@@ -83,6 +72,39 @@ class ApiClient {
   Future<Response> post(String path, {dynamic data}) {
     return _dio.post(path, data: data);
   }
+
+  /// Exchanges the current JWT for a fresh one via /api/auth/refresh. Calls are
+  /// single-flighted; returns true when a new token was stored.
+  Future<bool> tryRefresh() {
+    return _refreshing ??= _doRefresh().whenComplete(() => _refreshing = null);
+  }
+
+  Future<bool> _doRefresh() async {
+    final token = _jwtToken;
+    if (token == null) return false;
+    try {
+      // A bare Dio (no interceptors) so a 401 on refresh can't recurse back in.
+      final res = await Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: requestTimeout,
+          receiveTimeout: requestTimeout,
+        ),
+      ).post(
+        '/api/auth/refresh',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+      final newToken = res.data is Map ? res.data['token'] as String? : null;
+      if (newToken != null && newToken.isNotEmpty) {
+        setJwtToken(newToken);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      dev.log('[Auth] Token refresh failed', name: 'ApiClient');
+      return false;
+    }
+  }
 }
 
 class _AuthInterceptor extends Interceptor {
@@ -91,27 +113,41 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (_client._jwtToken != null) {
-      options.headers['Authorization'] = 'Bearer ${_client._jwtToken}';
-    } else if (_client._telegramInitData != null) {
-      options.headers['X-Init-Data'] = _client._telegramInitData;
+    final token = _client._jwtToken;
+    if (token != null) {
+      options.headers['Authorization'] = 'Bearer $token';
     }
-    dev.log(
-      '[Auth] ${options.method} ${options.path} — JWT=${_client._jwtToken != null}, TG=${_client._telegramInitData != null}',
-      name: 'ApiClient',
-    );
     handler.next(options);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    dev.log(
-      '[Auth] ERROR ${err.response?.statusCode} ${err.requestOptions.path}',
-      name: 'ApiClient',
-    );
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    final status = err.response?.statusCode;
     final path = err.requestOptions.path;
     final isAuthEndpoint = path.contains('/api/auth/');
-    if (err.response?.statusCode == 401 && !isAuthEndpoint) {
+    final alreadyRetried = err.requestOptions.extra['retried'] == true;
+
+    if (status == 401 &&
+        !isAuthEndpoint &&
+        _client._jwtToken != null &&
+        !alreadyRetried) {
+      // The token likely expired mid-session. Refresh once and replay the
+      // original request before giving up — so a stale token no longer kicks
+      // the user back to the login screen.
+      final refreshed = await _client.tryRefresh();
+      if (refreshed) {
+        try {
+          final opts = err.requestOptions;
+          opts.extra['retried'] = true;
+          opts.headers['Authorization'] = 'Bearer ${_client._jwtToken}';
+          final clone = await _client._dio.fetch<dynamic>(opts);
+          return handler.resolve(clone);
+        } catch (_) {
+          // Refresh succeeded but the replay still failed — fall through.
+        }
+      }
+      _client.clearAuth();
+    } else if (status == 401 && !isAuthEndpoint) {
       _client.clearAuth();
     }
     handler.next(err);

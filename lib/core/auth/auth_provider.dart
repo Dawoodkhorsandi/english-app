@@ -139,6 +139,35 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<bool> loginWithShortCode(String code) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      dev.log('[Auth] Verifying short code: $code', name: 'Auth');
+      final response = await _apiClient.post(
+        '/api/auth/telegram/verify',
+        data: {'code': code},
+      );
+      final data = response.data;
+      final token = data['token'] as String;
+      final user = data['user'] as Map<String, dynamic>;
+      _apiClient.setJwtToken(token);
+      state = AuthState(
+        method: AuthMethod.telegram,
+        name: user['name'] as String?,
+      );
+      dev.log('[Auth] Short code login success: ${user['name']}', name: 'Auth');
+      return true;
+    } catch (e) {
+      dev.log('[Auth] Short code verification failed: $e', name: 'Auth');
+      String errorMsg = 'Invalid or expired code. Get a new one from the bot.';
+      if (e.toString().contains('401')) {
+        errorMsg = 'Code expired or already used. Get a new one from the bot.';
+      }
+      state = state.copyWith(isLoading: false, error: errorMsg);
+      return false;
+    }
+  }
+
   Future<bool> loginWithClipboard() async {
     state = state.copyWith(isLoading: true, clearError: true);
     try {

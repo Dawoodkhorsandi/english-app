@@ -19,6 +19,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+  final _codeController = TextEditingController();
   bool _isLogin = true;
   bool _obscurePassword = true;
 
@@ -34,19 +35,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      dev.log('[Login] App resumed, checking clipboard...', name: 'Login');
-      _tryTelegramLogin();
+      dev.log(
+        '[Login] App resumed, checking clipboard for code...',
+        name: 'Login',
+      );
+      _tryAutoDetectCode();
+    }
+  }
+
+  Future<void> _tryAutoDetectCode() async {
+    try {
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
+      final text = data?.text?.trim();
+      if (text != null && RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(text)) {
+        dev.log('[Login] Auto-detected code: $text', name: 'Login');
+        final auth = ref.read(authProvider.notifier);
+        await auth.loginWithShortCode(text);
+      }
+    } catch (e) {
+      dev.log('[Login] Clipboard check failed: $e', name: 'Login');
     }
   }
 
   Future<void> _openTelegram() async {
-    // Show instruction dialog first
     final shouldContinue = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -57,11 +75,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           children: [
             Text('1. Tap "Open Telegram" below'),
             SizedBox(height: 8),
-            Text('2. In the bot, tap "Copy Login Code"'),
+            Text('2. In the bot, tap "Get Login Code"'),
             SizedBox(height: 8),
-            Text(
-              '3. Return to this app — it will detect the code automatically',
-            ),
+            Text('3. Tap "Copy Code" in the bot'),
+            SizedBox(height: 8),
+            Text('4. Return here — code detected automatically'),
           ],
         ),
         actions: [
@@ -93,38 +111,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
         );
       }
-    }
-  }
-
-  Future<void> _tryTelegramLogin() async {
-    final auth = ref.read(authProvider.notifier);
-    final success = await auth.loginWithClipboard();
-    if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Tap "Copy Login Code" in the Telegram bot, then return here.',
-          ),
-          action: SnackBarAction(label: 'Open Bot', onPressed: _openTelegram),
-        ),
-      );
-    }
-  }
-
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-    final auth = ref.read(authProvider.notifier);
-    if (_isLogin) {
-      auth.loginWithEmail(
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
-    } else {
-      auth.register(
-        _emailController.text.trim(),
-        _passwordController.text,
-        _nameController.text.trim(),
-      );
     }
   }
 
@@ -278,6 +264,57 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: Color(0xFF0088CC)),
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'OR enter code manually',
+                          style: TextStyle(
+                            color: Theme.of(context).hintColor,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _codeController,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 4,
+                      fontFamily: 'monospace',
+                    ),
+                    decoration: const InputDecoration(
+                      hintText: 'A3F-K9M',
+                      hintStyle: TextStyle(
+                        letterSpacing: 4,
+                        fontFamily: 'monospace',
+                      ),
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.vpn_key),
+                    ),
+                    maxLength: 8,
+                    buildCounter:
+                        (
+                          context, {
+                          required currentLength,
+                          required isFocused,
+                          required maxLength,
+                        }) => null,
+                    onChanged: (v) {
+                      if (v.length == 8 &&
+                          RegExp(r'^[A-Z0-9]{3}-[A-Z0-9]{3}$').hasMatch(v)) {
+                        ref.read(authProvider.notifier).loginWithShortCode(v);
+                      }
+                    },
                   ),
                 ],
               ),

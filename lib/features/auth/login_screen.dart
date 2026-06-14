@@ -255,7 +255,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   if (_waitingForTelegram) ...[
                     const SizedBox(height: 12),
                     Text(
-                      '1. Tap "Copy Login Code" in the bot\n2. Return to this app',
+                      '1. Tap "Copy Login Code" in the bot dashboard\n2. Return to this app',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 13,

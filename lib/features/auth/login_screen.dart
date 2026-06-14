@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,7 +21,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _nameController = TextEditingController();
   bool _isLogin = true;
   bool _obscurePassword = true;
-  bool _waitingForTelegram = false;
 
   @override
   void initState() {
@@ -39,25 +39,56 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _waitingForTelegram) {
-      _waitingForTelegram = false;
+    if (state == AppLifecycleState.resumed) {
+      dev.log('[Login] App resumed, checking clipboard...', name: 'Login');
       _tryTelegramLogin();
     }
   }
 
   Future<void> _openTelegram() async {
+    // Show instruction dialog first
+    final shouldContinue = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Login with Telegram'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('1. Tap "Open Telegram" below'),
+            SizedBox(height: 8),
+            Text('2. In the bot, tap "Copy Login Code"'),
+            SizedBox(height: 8),
+            Text(
+              '3. Return to this app — it will detect the code automatically',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Open Telegram'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldContinue != true) return;
+
     final botUsername = botTelegramUsername.replaceFirst('@', '');
-    final uri = Uri.parse('https://t.me/$botUsername?startapp=link_account');
-    setState(() => _waitingForTelegram = true);
+    final uri = Uri.parse('https://t.me/$botUsername');
     try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e) {
       if (mounted) {
-        setState(() => _waitingForTelegram = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Could not open Telegram. Please install Telegram from the Play Store.',
+              'Could not open Telegram. Please install it from the Play Store.',
             ),
           ),
         );
@@ -74,7 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           content: const Text(
             'Tap "Copy Login Code" in the Telegram bot, then return here.',
           ),
-          action: SnackBarAction(label: 'Retry', onPressed: _tryTelegramLogin),
+          action: SnackBarAction(label: 'Open Bot', onPressed: _openTelegram),
         ),
       );
     }
@@ -242,27 +273,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   OutlinedButton.icon(
                     onPressed: auth.isLoading ? null : _openTelegram,
                     icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
-                    label: Text(
-                      _waitingForTelegram
-                          ? 'Waiting for Telegram...'
-                          : 'Continue with Telegram',
-                    ),
+                    label: const Text('Continue with Telegram'),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       side: const BorderSide(color: Color(0xFF0088CC)),
                     ),
                   ),
-                  if (_waitingForTelegram) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      '1. Tap "Copy Login Code" in the bot dashboard\n2. Return to this app',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(context).hintColor,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

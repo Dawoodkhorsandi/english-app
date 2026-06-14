@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -52,9 +53,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
-    final token = await _storage.read(key: 'jwt_token');
-    if (token != null) {
-      _apiClient.setJwtToken(token);
+    await _apiClient.loadStoredAuth();
+
+    // Try JWT first
+    if (_apiClient.currentToken != null) {
       try {
         final response = await _apiClient.get('/api/auth/me');
         final data = response.data;
@@ -63,13 +65,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
           email: data['email'],
           name: data['name'],
         );
+        dev.log('[Auth] Restored JWT session: ${data['email']}', name: 'Auth');
+        return;
       } catch (e) {
+        dev.log('[Auth] JWT validation failed: $e', name: 'Auth');
         _apiClient.clearAuth();
-        state = AuthState();
       }
-    } else {
-      state = AuthState();
     }
+
+    // Try Telegram initData
+    if (_apiClient.currentInitData != null) {
+      dev.log('[Auth] Trying to restore Telegram session...', name: 'Auth');
+      try {
+        // Test the initData by calling a lightweight endpoint
+        final response = await _apiClient.get('/api/config');
+        if (response.statusCode == 200) {
+          state = AuthState(method: AuthMethod.telegram);
+          dev.log('[Auth] Restored Telegram session', name: 'Auth');
+          return;
+        }
+      } catch (e) {
+        dev.log('[Auth] Telegram restore failed: $e', name: 'Auth');
+        _apiClient.clearAuth();
+      }
+    }
+
+    state = AuthState();
   }
 
   Future<void> loginWithEmail(String email, String password) async {
@@ -82,13 +103,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final data = response.data;
       final token = data['token'] as String;
       _apiClient.setJwtToken(token);
-      await _storage.write(key: 'jwt_token', value: token);
       state = AuthState(
         method: AuthMethod.email,
         email: email,
         name: data['name'],
       );
+      dev.log('[Auth] Email login success: $email', name: 'Auth');
     } catch (e) {
+      dev.log('[Auth] Email login failed: $e', name: 'Auth');
       state = state.copyWith(
         isLoading: false,
         error: 'Login failed. Please check your credentials.',
@@ -106,9 +128,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final data = response.data;
       final token = data['token'] as String;
       _apiClient.setJwtToken(token);
-      await _storage.write(key: 'jwt_token', value: token);
       state = AuthState(method: AuthMethod.email, email: email, name: name);
+      dev.log('[Auth] Registration success: $email', name: 'Auth');
     } catch (e) {
+      dev.log('[Auth] Registration failed: $e', name: 'Auth');
       state = state.copyWith(
         isLoading: false,
         error: 'Registration failed. Email may already be in use.',
@@ -120,38 +143,63 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      final initData = data?.text;
-      if (initData == null || initData.isEmpty || !initData.contains('user=')) {
+      var initData = data?.text?.trim();
+      dev.log(
+        '[Auth] Clipboard data: ${initData?.substring(0, initData.length > 50 ? 50 : initData.length)}...',
+        name: 'Auth',
+      );
+
+      if (initData == null || initData.isEmpty) {
         state = state.copyWith(
           isLoading: false,
           error:
-              'No Telegram login data found. Open the bot in Telegram and tap "Copy Login Code".',
+              'Clipboard is empty. Tap "Copy Login Code" in the Telegram bot first.',
         );
         return false;
       }
+
+      if (!initData.contains('user=')) {
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              'Clipboard does not contain Telegram login data. Tap "Copy Login Code" in the bot.',
+        );
+        return false;
+      }
+
+      // Set the initData and validate with backend
       _apiClient.setTelegramInitData(initData);
-      await _storage.write(key: 'telegram_init_data', value: initData);
-      state = AuthState(method: AuthMethod.telegram);
-      return true;
+
+      // Test by calling a lightweight endpoint
+      try {
+        await _apiClient.get('/api/config');
+        state = AuthState(method: AuthMethod.telegram);
+        dev.log('[Auth] Telegram login success', name: 'Auth');
+        return true;
+      } catch (e) {
+        dev.log('[Auth] Telegram validation failed: $e', name: 'Auth');
+        _apiClient.clearAuth();
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              'Invalid or expired login data. Please copy a fresh code from the bot.',
+        );
+        return false;
+      }
     } catch (e) {
+      dev.log('[Auth] Clipboard read error: $e', name: 'Auth');
       state = state.copyWith(
         isLoading: false,
-        error: 'Failed to read Telegram data from clipboard.',
+        error: 'Failed to read clipboard: $e',
       );
       return false;
     }
   }
 
-  void setTelegramAuth(String initData) {
-    _apiClient.setTelegramInitData(initData);
-    state = AuthState(method: AuthMethod.telegram);
-  }
-
   Future<void> logout() async {
     _apiClient.clearAuth();
-    await _storage.delete(key: 'jwt_token');
-    await _storage.delete(key: 'telegram_init_data');
     state = AuthState();
+    dev.log('[Auth] Logged out', name: 'Auth');
   }
 }
 

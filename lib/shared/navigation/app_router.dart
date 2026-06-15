@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/profile/profile_screen.dart';
-import '../../features/library/library_screen.dart';
+import '../../features/home/home_screen.dart';
 import '../../features/study/study_screen.dart';
-import '../../features/review/review_screen.dart';
-import '../../features/ranks/ranks_screen.dart';
+import '../../features/library/library_screen.dart';
+import '../../features/profile/profile_screen.dart';
 import '../../features/settings/settings_screen.dart';
 
 final currentTabProvider = StateProvider<int>((ref) => 0);
@@ -19,33 +18,31 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell> {
   final _pages = const [
-    ProfileScreen(),
-    LibraryScreen(),
+    HomeScreen(),
     StudyScreen(),
-    ReviewScreen(),
-    RanksScreen(),
+    LibraryScreen(),
+    ProfileScreen(),
   ];
+
+  static const _titles = ['Engram', 'Learn', 'Library', 'Profile'];
 
   @override
   Widget build(BuildContext context) {
     final currentTab = ref.watch(currentTabProvider);
 
     return Scaffold(
-      appBar: currentTab == 0
-          ? AppBar(
-              title: const Text('Profile'),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.settings_outlined),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const SettingsScreen(),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : null,
+      appBar: AppBar(
+        title: Text(_titles[currentTab]),
+        actions: [
+          if (currentTab == 0 || currentTab == 3)
+            IconButton(
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              ),
+            ),
+        ],
+      ),
       body: _pages[currentTab],
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentTab,
@@ -54,9 +51,14 @@ class _MainShellState extends ConsumerState<MainShell> {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Profile',
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.school_outlined),
+            selectedIcon: Icon(Icons.school),
+            label: 'Learn',
           ),
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
@@ -64,19 +66,9 @@ class _MainShellState extends ConsumerState<MainShell> {
             label: 'Library',
           ),
           NavigationDestination(
-            icon: Icon(Icons.school_outlined),
-            selectedIcon: Icon(Icons.school),
-            label: 'Study',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.psychology_outlined),
-            selectedIcon: Icon(Icons.psychology),
-            label: 'Review',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events),
-            label: 'Ranks',
+            icon: Icon(Icons.person_outlined),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

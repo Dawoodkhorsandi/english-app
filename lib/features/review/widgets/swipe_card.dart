@@ -114,157 +114,189 @@ class _SwipeSessionState extends State<SwipeSession> {
           ),
         ),
         Expanded(
-          child: GestureDetector(
-            onHorizontalDragUpdate: (d) => setState(() => _dx += d.delta.dx),
-            onHorizontalDragEnd: (d) {
-              if (_dx > 90) {
-                _commit(true);
-              } else if (_dx < -90) {
-                _commit(false);
-              } else {
-                setState(() => _dx = 0);
-              }
-            },
-            onTap: () => setState(() => _flipped = !_flipped),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.all(AppSpacing.pagePadding),
-              transform: Matrix4.identity()
-                ..setTranslation(vm.Vector3(_dx, 0.0, 0.0))
-                ..rotateZ(_dx * 0.001),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: AppRadius.borderXxl,
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.shadow.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Use 30% of screen width as swipe threshold so it scales
+              // with device size and feels comfortable on all screens.
+              final swipeThreshold = constraints.maxWidth * 0.30;
+              return GestureDetector(
+                onHorizontalDragUpdate: (d) =>
+                    setState(() => _dx += d.delta.dx),
+                onHorizontalDragEnd: (d) {
+                  if (_dx > swipeThreshold) {
+                    _commit(true);
+                  } else if (_dx < -swipeThreshold) {
+                    _commit(false);
+                  } else {
+                    setState(() => _dx = 0);
+                  }
+                },
+                onTap: () => setState(() => _flipped = !_flipped),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
                   ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xxl),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (_flipped) ...[
-                            Text(
-                              _queue.first.back,
-                              textAlign: TextAlign.center,
-                              style: textTheme.bodyLarge,
+                  transform: Matrix4.identity()
+                    ..setTranslation(vm.Vector3(_dx, 0.0, 0.0))
+                    ..rotateZ(_dx * 0.0005),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: AppRadius.borderXxl,
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.shadow.withValues(alpha: 0.08),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.xxxl),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                if (_flipped) ...[
+                                  Text(
+                                    _queue.first.back,
+                                    textAlign: TextAlign.center,
+                                    style: textTheme.bodyLarge?.copyWith(
+                                      height: 1.6,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  Text(
+                                    _queue.first.front,
+                                    textAlign: TextAlign.center,
+                                    style: textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  if (_queue.first.sub != null) ...[
+                                    const SizedBox(height: AppSpacing.sm),
+                                    Text(
+                                      _queue.first.sub!,
+                                      style: textTheme.bodyLarge?.copyWith(
+                                        color: colorScheme.outline,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                                const SizedBox(height: AppSpacing.xl),
+                                Text(
+                                  _flipped ? 'Tap to see front' : 'Tap to flip',
+                                  style: textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.outline,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ] else ...[
-                            Text(
-                              _queue.first.front,
-                              textAlign: TextAlign.center,
-                              style: textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      if (_dx > 40)
+                        Positioned(
+                          top: AppSpacing.lg,
+                          right: AppSpacing.lg,
+                          child: Opacity(
+                            opacity: (_dx / swipeThreshold).clamp(0.0, 1.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.xs,
                               ),
-                            ),
-                            if (_queue.first.sub != null) ...[
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                _queue.first.sub!,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.outline,
+                              decoration: BoxDecoration(
+                                color: AppColors.success,
+                                borderRadius: AppRadius.borderSm,
+                              ),
+                              child: Text(
+                                'KNEW IT',
+                                style: textTheme.labelMedium?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ],
-                          ],
-                          const SizedBox(height: AppSpacing.lg),
-                          Text(
-                            _flipped ? 'Tap to see front' : 'Tap to flip',
-                            style: textTheme.labelSmall?.copyWith(
-                              color: colorScheme.outline,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      if (_dx < -40)
+                        Positioned(
+                          top: AppSpacing.lg,
+                          left: AppSpacing.lg,
+                          child: Opacity(
+                            opacity: (-_dx / swipeThreshold).clamp(0.0, 1.0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.xs,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.danger,
+                                borderRadius: AppRadius.borderSm,
+                              ),
+                              child: Text(
+                                'FORGOT',
+                                style: textTheme.labelMedium?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  if (_dx > 30)
-                    Positioned(
-                      top: AppSpacing.lg,
-                      right: AppSpacing.lg,
-                      child: Opacity(
-                        opacity: (_dx / 90).clamp(0.0, 1.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.success,
-                            borderRadius: AppRadius.borderSm,
-                          ),
-                          child: Text(
-                            'KNEW IT',
-                            style: textTheme.labelMedium?.copyWith(
-                              color: colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (_dx < -30)
-                    Positioned(
-                      top: AppSpacing.lg,
-                      left: AppSpacing.lg,
-                      child: Opacity(
-                        opacity: (-_dx / 90).clamp(0.0, 1.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.danger,
-                            borderRadius: AppRadius.borderSm,
-                          ),
-                          child: Text(
-                            'FORGOT',
-                            style: textTheme.labelMedium?.copyWith(
-                              color: colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(AppSpacing.pagePadding),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () => _commit(false),
-                icon: const Icon(Icons.close),
-                label: const Text('Forgot'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.danger,
-                  foregroundColor: colorScheme.onPrimary,
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.pagePadding,
+              AppSpacing.sm,
+              AppSpacing.pagePadding,
+              AppSpacing.pagePadding,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _commit(false),
+                    icon: const Icon(Icons.close),
+                    label: const Text('Forgot'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.danger,
+                      foregroundColor: colorScheme.onPrimary,
+                      minimumSize: const Size(0, 48),
+                    ),
+                  ),
                 ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _commit(true),
-                icon: const Icon(Icons.check),
-                label: const Text('Knew it'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.success,
-                  foregroundColor: colorScheme.onPrimary,
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _commit(true),
+                    icon: const Icon(Icons.check),
+                    label: const Text('Knew it'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.success,
+                      foregroundColor: colorScheme.onPrimary,
+                      minimumSize: const Size(0, 48),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

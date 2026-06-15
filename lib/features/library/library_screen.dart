@@ -8,6 +8,7 @@ import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
 import '../../shared/widgets/bookmark_star.dart';
+import '../../shared/widgets/bottom_sheet_word.dart';
 
 enum _LibraryTab { words, bookmarks, dict }
 
@@ -214,6 +215,55 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       ),
       subtitle: Text(w.meaning, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: BookmarkStar(term: w.term, initialBookmarked: w.bookmarked),
+      onTap: () => _showWordDetail(context, w),
+    );
+  }
+
+  void _showWordDetail(BuildContext context, VocabItem w) {
+    // Show bottom sheet immediately with basic info, then load full detail.
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => Consumer(
+        builder: (context, ref, _) {
+          final cardAsync = ref.watch(vocabCardProvider(w.term));
+          return cardAsync.when(
+            loading: () => Padding(
+              padding: const EdgeInsets.all(AppSpacing.xxl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    w.term,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(w.meaning),
+                  const SizedBox(height: AppSpacing.lg),
+                  const Center(child: CircularProgressIndicator()),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+              ),
+            ),
+            error: (_, __) => WordBottomSheet(term: w.term, meaning: w.meaning),
+            data: (card) => WordBottomSheet(
+              term: card.term,
+              meaning: card.meaning,
+              persian: card.meaning,
+              example: card.text,
+              onOpenDictionary: () {
+                Navigator.of(context).pop();
+                setState(() {
+                  _tab = _LibraryTab.dict;
+                  _searchController.text = w.term;
+                  _searchQuery = w.term;
+                });
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 

@@ -116,7 +116,7 @@ void main() {
       final client = _FakeApiClient(storage: storage);
       client.setPostResponse('/api/auth/login', {
         'token': 'fake-jwt-token',
-        'name': 'Test User',
+        'user': {'name': 'Test User', 'email': 'test@example.com'},
       });
 
       final notifier = AuthNotifier(client);
@@ -262,7 +262,7 @@ void main() {
       final client = _FakeApiClient(storage: storage);
       client.setPostResponse('/api/auth/login', {
         'token': 'fake-jwt-token',
-        'name': 'Test User',
+        'user': {'name': 'Test User', 'email': 'test@example.com'},
       });
 
       final notifier = AuthNotifier(client);

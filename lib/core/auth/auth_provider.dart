@@ -15,6 +15,28 @@ String _serverError(Object e) {
   return '';
 }
 
+/// True when the request never got a usable HTTP response from the server
+/// (connection refused/timeout/DNS, or a gateway error with no parsable body).
+/// These are network/outage conditions — not a rejected login code — so the UI
+/// must not tell the user their code is wrong. A bot redeploy briefly restarts
+/// the container (nginx 502), which lands here.
+bool _isNetworkError(Object e) {
+  if (e is! DioException) return false;
+  switch (e.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.connectionError:
+      return true;
+    case DioExceptionType.badResponse:
+      // 5xx / gateway errors with no actionable body are server-side outages.
+      final status = e.response?.statusCode ?? 0;
+      return status >= 500 && _serverError(e).isEmpty;
+    default:
+      return false;
+  }
+}
+
 enum AuthMethod { telegram, email, none }
 
 class AuthState {
@@ -109,7 +131,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       dev.log('[Auth] Email login failed', name: 'Auth');
       state = state.copyWith(
         isLoading: false,
-        error: 'Login failed. Please check your credentials.',
+        error: _isNetworkError(e)
+            ? "Couldn't reach the server. Check your connection and try again."
+            : 'Login failed. Please check your credentials.',
       );
     }
   }
@@ -130,7 +154,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       dev.log('[Auth] Registration failed', name: 'Auth');
       state = state.copyWith(
         isLoading: false,
-        error: 'Registration failed. Email may already be in use.',
+        error: _isNetworkError(e)
+            ? "Couldn't reach the server. Check your connection and try again."
+            : 'Registration failed. Email may already be in use.',
       );
     }
   }
@@ -154,6 +180,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
       return true;
     } catch (e) {
       dev.log('[Auth] Short code verification failed', name: 'Auth');
+      // A connection/outage failure must not be reported as a bad code (e.g. a
+      // bot redeploy briefly 502s) — surface it as a network problem instead.
+      if (_isNetworkError(e)) {
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              "Couldn't reach the server. Check your connection and try again "
+              'in a moment — your code may still be valid.',
+        );
+        return false;
+      }
       // Surface the exact backend reason so "invalid" vs "used" vs "expired"
       // is no longer ambiguous.
       final reason = _serverError(e);

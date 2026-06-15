@@ -50,7 +50,7 @@ class _FakeApiClient extends ApiClient {
   final Map<String, dynamic> _postResponses = {};
   Object? _postError;
 
-  _FakeApiClient({FlutterSecureStorage? storage}) : super(storage: storage);
+  _FakeApiClient({super.storage});
 
   void setGetResponse(String path, dynamic data) {
     _getResponses[path] = data;
@@ -148,6 +148,114 @@ void main() {
         'Login failed. Please check your credentials.',
       );
     });
+
+    test('loginWithShortCode succeeds and sets telegram method', () async {
+      final storage = _FakeStorage();
+      final client = _FakeApiClient(storage: storage);
+      client.setPostResponse('/api/auth/telegram/verify', {
+        'token': 'fake-jwt-token',
+        'user': {
+          'id': 991012762,
+          'email': '',
+          'name': 'User 991012762',
+          'chat_id': 991012762,
+        },
+      });
+
+      final notifier = AuthNotifier(client);
+      await Future.delayed(Duration.zero);
+
+      final ok = await notifier.loginWithShortCode('V8L-A33');
+      await Future.delayed(Duration.zero);
+
+      expect(ok, true);
+      expect(notifier.state.isAuthenticated, true);
+      expect(notifier.state.method, AuthMethod.telegram);
+      expect(notifier.state.name, 'User 991012762');
+    });
+
+    test(
+      'loginWithShortCode maps expired code to a code-specific error',
+      () async {
+        final storage = _FakeStorage();
+        final client = _FakeApiClient(storage: storage);
+        const path = '/api/auth/telegram/verify';
+        client.setPostError(
+          DioException(
+            requestOptions: RequestOptions(path: path),
+            type: DioExceptionType.badResponse,
+            response: Response(
+              requestOptions: RequestOptions(path: path),
+              statusCode: 401,
+              data: 'code expired',
+            ),
+          ),
+        );
+
+        final notifier = AuthNotifier(client);
+        await Future.delayed(Duration.zero);
+
+        final ok = await notifier.loginWithShortCode('V8L-A33');
+        await Future.delayed(Duration.zero);
+
+        expect(ok, false);
+        expect(notifier.state.error, contains('expired'));
+      },
+    );
+
+    test('loginWithShortCode reports a network outage as a connection problem, '
+        'not a bad code', () async {
+      final storage = _FakeStorage();
+      final client = _FakeApiClient(storage: storage);
+      const path = '/api/auth/telegram/verify';
+      // A 502 with no parsable body (e.g. nginx during a bot redeploy).
+      client.setPostError(
+        DioException(
+          requestOptions: RequestOptions(path: path),
+          type: DioExceptionType.badResponse,
+          response: Response(
+            requestOptions: RequestOptions(path: path),
+            statusCode: 502,
+            data: null,
+          ),
+        ),
+      );
+
+      final notifier = AuthNotifier(client);
+      await Future.delayed(Duration.zero);
+
+      final ok = await notifier.loginWithShortCode('V8L-A33');
+      await Future.delayed(Duration.zero);
+
+      expect(ok, false);
+      expect(notifier.state.error, contains('reach the server'));
+      // Must NOT blame the code.
+      expect(notifier.state.error, isNot(contains('/login')));
+    });
+
+    test(
+      'loginWithShortCode treats a connection error as a network problem',
+      () async {
+        final storage = _FakeStorage();
+        final client = _FakeApiClient(storage: storage);
+        const path = '/api/auth/telegram/verify';
+        client.setPostError(
+          DioException(
+            requestOptions: RequestOptions(path: path),
+            type: DioExceptionType.connectionError,
+          ),
+        );
+
+        final notifier = AuthNotifier(client);
+        await Future.delayed(Duration.zero);
+
+        final ok = await notifier.loginWithShortCode('V8L-A33');
+        await Future.delayed(Duration.zero);
+
+        expect(ok, false);
+        expect(notifier.state.error, contains('reach the server'));
+      },
+    );
 
     test('logout clears state', () async {
       final storage = _FakeStorage();

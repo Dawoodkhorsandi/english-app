@@ -24,9 +24,7 @@ class RanksScreen extends ConsumerWidget {
         children: [
           Text(
             '🏆 Leaderboard',
-            style: textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.sm),
           SingleChildScrollView(

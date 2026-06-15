@@ -37,9 +37,9 @@ class _MainShellState extends ConsumerState<MainShell> {
           if (currentTab == 0 || currentTab == 3)
             IconButton(
               icon: const Icon(Icons.settings_outlined),
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              ),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
             ),
         ],
       ),

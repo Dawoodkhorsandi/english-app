@@ -58,10 +58,7 @@ class AchievementSection extends StatelessWidget {
               children: entry.value
                   .map(
                     (a) => ListTile(
-                      leading: Text(
-                        a.icon,
-                        style: textTheme.headlineSmall,
-                      ),
+                      leading: Text(a.icon, style: textTheme.headlineSmall),
                       title: Text(a.name),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,8 +72,9 @@ class AchievementSection extends StatelessWidget {
                           const SizedBox(height: AppSpacing.xs),
                           LinearProgressIndicator(
                             value: a.target > 0 ? a.progress / a.target : 0,
-                            backgroundColor:
-                                colorScheme.primary.withValues(alpha: 0.15),
+                            backgroundColor: colorScheme.primary.withValues(
+                              alpha: 0.15,
+                            ),
                           ),
                         ],
                       ),

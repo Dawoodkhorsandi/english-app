@@ -9,11 +9,7 @@ import '../../shared/widgets/error_state.dart';
 class ContentListScreen extends ConsumerWidget {
   final String kind;
   final String title;
-  const ContentListScreen({
-    super.key,
-    required this.kind,
-    required this.title,
-  });
+  const ContentListScreen({super.key, required this.kind, required this.title});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,10 +65,7 @@ class ContentListScreen extends ConsumerWidget {
                       ],
                       if (item.text.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          item.text,
-                          style: textTheme.bodyMedium,
-                        ),
+                        Text(item.text, style: textTheme.bodyMedium),
                       ],
                       if (item.sentAt.isNotEmpty)
                         Padding(

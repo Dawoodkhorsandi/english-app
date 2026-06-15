@@ -38,10 +38,7 @@ class PracticeScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      data['text'] ?? '',
-                      style: textTheme.bodyLarge,
-                    ),
+                    Text(data['text'] ?? '', style: textTheme.bodyLarge),
                   ],
                 ),
               ),

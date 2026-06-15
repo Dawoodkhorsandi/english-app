@@ -83,9 +83,7 @@ class LeaderboardScreen extends ConsumerWidget {
                               ),
                             ),
                             title: Text(
-                              resp.me!.name.isNotEmpty
-                                  ? resp.me!.name
-                                  : 'You',
+                              resp.me!.name.isNotEmpty ? resp.me!.name : 'You',
                               style: textTheme.bodyLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -170,10 +168,7 @@ class LeaderboardScreen extends ConsumerWidget {
       backgroundColor: bg,
       child: Text(
         '$rank',
-        style: tt.labelMedium?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.bold,
-        ),
+        style: tt.labelMedium?.copyWith(color: fg, fontWeight: FontWeight.bold),
       ),
     );
   }

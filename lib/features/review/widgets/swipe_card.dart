@@ -108,9 +108,7 @@ class _SwipeSessionState extends State<SwipeSession> {
               const Spacer(),
               Text(
                 '$_knownCount known',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AppColors.success,
-                ),
+                style: textTheme.bodyMedium?.copyWith(color: AppColors.success),
               ),
             ],
           ),
@@ -293,9 +291,7 @@ class _SwipeSessionState extends State<SwipeSession> {
           const SizedBox(height: AppSpacing.xxl),
           Text(
             widget.doneText,
-            style: textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(

@@ -97,22 +97,13 @@ class AppTheme {
         fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         border: _inputBorder,
         enabledBorder: _inputBorder.copyWith(
-          borderSide: BorderSide(
-            color: colorScheme.outlineVariant,
-            width: 1,
-          ),
+          borderSide: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
         focusedBorder: _inputBorder.copyWith(
-          borderSide: BorderSide(
-            color: colorScheme.primary,
-            width: 1.5,
-          ),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
         errorBorder: _inputBorder.copyWith(
-          borderSide: BorderSide(
-            color: colorScheme.error,
-            width: 1,
-          ),
+          borderSide: BorderSide(color: colorScheme.error, width: 1),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -152,9 +143,7 @@ class AppTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          textStyle: textTheme.labelLarge,
-        ),
+        style: TextButton.styleFrom(textStyle: textTheme.labelLarge),
       ),
 
       // ---- Chips ----

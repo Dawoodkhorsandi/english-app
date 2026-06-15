@@ -26,6 +26,19 @@ final vocabProvider = FutureProvider.family<VocabResponse, VocabParams>((
   );
 });
 
+/// Fetches the full detail card for a single word (text, meaning).
+final vocabCardProvider = FutureProvider.family<VocabCard, String>((
+  ref,
+  term,
+) async {
+  final client = ref.watch(apiClientProvider);
+  final response = await client.get(
+    ApiEndpoints.vocabCard,
+    queryParameters: {'term': term},
+  );
+  return VocabCard.fromJson(response.data);
+});
+
 class VocabParams {
   final int offset;
   final int limit;

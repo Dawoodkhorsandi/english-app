@@ -120,11 +120,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
       final data = response.data;
       final token = data['token'] as String;
+      final user = data['user'] as Map<String, dynamic>?;
       _apiClient.setJwtToken(token);
       state = AuthState(
         method: AuthMethod.email,
         email: email,
-        name: data['name'],
+        name: user?['name'] as String?,
       );
       dev.log('[Auth] Email login success', name: 'Auth');
     } catch (e) {

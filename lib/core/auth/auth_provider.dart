@@ -27,7 +27,11 @@ bool _isNetworkError(Object e) {
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
     case DioExceptionType.connectionError:
+    case DioExceptionType.badCertificate:
       return true;
+    case DioExceptionType.unknown:
+      // No HTTP response at all — typically a SocketException or similar.
+      return e.response == null;
     case DioExceptionType.badResponse:
       // 5xx / gateway errors with no actionable body are server-side outages.
       final status = e.response?.statusCode ?? 0;
@@ -78,7 +82,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final ApiClient _apiClient;
 
   AuthNotifier(this._apiClient) : super(AuthState()) {
+    _apiClient.onAuthCleared = _onAuthCleared;
     _init();
+  }
+
+  /// Called by [ApiClient] when the 401 interceptor wipes the JWT.
+  void _onAuthCleared() {
+    // Guard against calls after dispose (e.g. a late-arriving 401 response).
+    if (!mounted) return;
+    state = AuthState();
+  }
+
+  @override
+  void dispose() {
+    _apiClient.onAuthCleared = null;
+    super.dispose();
   }
 
   Future<void> _init() async {
@@ -104,7 +122,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       } catch (e) {
         dev.log('[Auth] Session restore failed', name: 'Auth');
-        _apiClient.clearAuth();
+        await _apiClient.clearAuth();
       }
     }
 
@@ -220,7 +238,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
-    _apiClient.clearAuth();
+    await _apiClient.clearAuth();
     state = AuthState();
     dev.log('[Auth] Logged out', name: 'Auth');
   }

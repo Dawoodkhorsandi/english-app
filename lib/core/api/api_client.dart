@@ -13,6 +13,11 @@ class ApiClient {
   // token refresh rather than a stampede.
   Future<bool>? _refreshing;
 
+  /// Called after [clearAuth] wipes the JWT so that higher layers (e.g.
+  /// [AuthNotifier]) can reset their own state. This avoids a stale
+  /// "authenticated" UI when the interceptor logs the user out server-side.
+  VoidCallback? onAuthCleared;
+
   ApiClient({FlutterSecureStorage? storage})
     : _storage = storage ?? const FlutterSecureStorage() {
     _dio = Dio(
@@ -54,9 +59,10 @@ class ApiClient {
     await _storage.delete(key: 'telegram_init_data');
   }
 
-  void clearAuth() {
+  Future<void> clearAuth() async {
     _jwtToken = null;
-    _storage.delete(key: 'jwt_token');
+    await _storage.delete(key: 'jwt_token');
+    onAuthCleared?.call();
   }
 
   bool get isAuthenticated => _jwtToken != null;
@@ -125,11 +131,15 @@ class _AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final status = err.response?.statusCode;
     final path = err.requestOptions.path;
-    final isAuthEndpoint = path.contains('/api/auth/');
+    // Auth mutation endpoints (login/register/verify) should NOT trigger a
+    // token-refresh cycle on 401 — a 401 there means bad credentials, not an
+    // expired session. /api/auth/me is excluded: it's a session probe and a 401
+    // there means the token expired and SHOULD be refreshed.
+    final isAuthMutation = path.contains('/api/auth/') && !path.endsWith('/me');
     final alreadyRetried = err.requestOptions.extra['retried'] == true;
 
     if (status == 401 &&
-        !isAuthEndpoint &&
+        !isAuthMutation &&
         _client._jwtToken != null &&
         !alreadyRetried) {
       // The token likely expired mid-session. Refresh once and replay the
@@ -147,9 +157,9 @@ class _AuthInterceptor extends Interceptor {
           // Refresh succeeded but the replay still failed — fall through.
         }
       }
-      _client.clearAuth();
-    } else if (status == 401 && !isAuthEndpoint) {
-      _client.clearAuth();
+      await _client.clearAuth();
+    } else if (status == 401 && !isAuthMutation) {
+      await _client.clearAuth();
     }
     handler.next(err);
   }

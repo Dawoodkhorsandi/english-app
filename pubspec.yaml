@@ -1,7 +1,7 @@
 name: english_app
 description: "English Learning Mobile App - AI-powered English practice with spaced repetition"
 publish_to: 'none'
-version: 1.2.3+9
+version: 1.2.4+10
 
 environment:
   sdk: ^3.12.2

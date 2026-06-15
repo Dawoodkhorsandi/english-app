@@ -302,10 +302,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     if ((r['persian'] ?? '').isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: AppSpacing.xs),
-                        child: Text(
-                          r['persian'],
-                          style: textTheme.bodyLarge,
-                        ),
+                        child: Text(r['persian'], style: textTheme.bodyLarge),
                       ),
                     if ((r['definition'] ?? '').isNotEmpty)
                       Padding(

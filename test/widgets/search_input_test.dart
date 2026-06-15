@@ -5,9 +5,9 @@ import 'package:english_app/core/theme/app_theme.dart';
 import 'package:english_app/shared/widgets/search_input.dart';
 
 Widget wrapInApp(Widget child) => MaterialApp(
-      theme: AppTheme.light,
-      home: Scaffold(body: child),
-    );
+  theme: AppTheme.light,
+  home: Scaffold(body: child),
+);
 
 void main() {
   group('SearchInput', () {

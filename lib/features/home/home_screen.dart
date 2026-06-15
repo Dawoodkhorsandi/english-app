@@ -91,9 +91,7 @@ class HomeScreen extends ConsumerWidget {
           // --- Quick Practice ---
           Text(
             'Quick Practice',
-            style: textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
@@ -102,9 +100,9 @@ class HomeScreen extends ConsumerWidget {
                 child: _QuickAction(
                   icon: Icons.quiz_outlined,
                   label: 'Quiz',
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const QuizScreen()),
-                  ),
+                  onTap: () => Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const QuizScreen())),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -138,9 +136,7 @@ class HomeScreen extends ConsumerWidget {
           // --- Decks ---
           Text(
             'Your Decks',
-            style: textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: AppSpacing.sm),
           decksAsync.when(
@@ -190,10 +186,7 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(width: AppSpacing.sm),
                     _StatChip(label: 'Mastered', value: '${stats.mastered}'),
                     const SizedBox(width: AppSpacing.sm),
-                    _StatChip(
-                      label: 'Quiz',
-                      value: '${stats.quizPct}%',
-                    ),
+                    _StatChip(label: 'Quiz', value: '${stats.quizPct}%'),
                   ],
                 ),
               ],
@@ -227,9 +220,7 @@ class _ReviewCard extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  isDue
-                      ? Icons.style_outlined
-                      : Icons.check_circle_outline,
+                  isDue ? Icons.style_outlined : Icons.check_circle_outline,
                   color: isDue
                       ? colorScheme.onPrimaryContainer
                       : colorScheme.primary,
@@ -239,9 +230,7 @@ class _ReviewCard extends ConsumerWidget {
                   'Review',
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: isDue
-                        ? colorScheme.onPrimaryContainer
-                        : null,
+                    color: isDue ? colorScheme.onPrimaryContainer : null,
                   ),
                 ),
               ],
@@ -275,11 +264,9 @@ class _ReviewCard extends ConsumerWidget {
   }
 
   void _startReview(BuildContext context, WidgetRef ref) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const _ReviewSessionScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const _ReviewSessionScreen()));
   }
 }
 
@@ -297,8 +284,7 @@ class _ReviewSessionScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorState(
           message: 'Could not load review cards',
-          onRetry: () =>
-              ref.invalidate(review_providers.reviewCardsProvider),
+          onRetry: () => ref.invalidate(review_providers.reviewCardsProvider),
         ),
         data: (cards) {
           if (cards.isEmpty) {
@@ -382,10 +368,7 @@ class _QuickAction extends StatelessWidget {
             children: [
               Icon(icon, color: colorScheme.primary),
               const SizedBox(height: AppSpacing.xs),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
+              Text(label, style: Theme.of(context).textTheme.labelMedium),
             ],
           ),
         ),
@@ -464,15 +447,15 @@ class _StatChip extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
               ),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

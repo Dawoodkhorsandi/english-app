@@ -54,17 +54,16 @@ class DeckDetailScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.sm),
               ...detail.boxes.map(
                 (b) => Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                   child: Row(
                     children: [
                       SizedBox(width: 60, child: Text('Box ${b.box}')),
                       Expanded(
                         child: LinearProgressIndicator(
-                          value:
-                              detail.total > 0 ? b.count / detail.total : 0,
-                          backgroundColor:
-                              colorScheme.primary.withValues(alpha: 0.15),
+                          value: detail.total > 0 ? b.count / detail.total : 0,
+                          backgroundColor: colorScheme.primary.withValues(
+                            alpha: 0.15,
+                          ),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -79,10 +78,8 @@ class DeckDetailScreen extends ConsumerWidget {
                 child: FilledButton(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => DeckStudyScreen(
-                        deckId: deckId,
-                        deckName: deckName,
-                      ),
+                      builder: (_) =>
+                          DeckStudyScreen(deckId: deckId, deckName: deckName),
                     ),
                   ),
                   child: const Text('Study Now'),

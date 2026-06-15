@@ -106,8 +106,9 @@ class ProfileScreen extends ConsumerWidget {
                     LinearProgressIndicator(
                       value: stats.quizPct / 100,
                       minHeight: AppSpacing.sm,
-                      backgroundColor:
-                          colorScheme.primary.withValues(alpha: 0.15),
+                      backgroundColor: colorScheme.primary.withValues(
+                        alpha: 0.15,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
@@ -130,9 +131,7 @@ class ProfileScreen extends ConsumerWidget {
             _SectionHeader(
               title: 'Leaderboard',
               onViewAll: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const LeaderboardScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -180,15 +179,15 @@ class _MetricCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.xxs),
               Text(
                 value,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -209,16 +208,13 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const Spacer(),
         if (onViewAll != null)
-          TextButton(
-            onPressed: onViewAll,
-            child: const Text('View all'),
-          ),
+          TextButton(onPressed: onViewAll, child: const Text('View all')),
       ],
     );
   }
@@ -247,8 +243,7 @@ class _LeaderboardPreview extends ConsumerWidget {
                   title: Text(
                     r.name.isNotEmpty ? r.name : 'User',
                     style: textTheme.bodyMedium?.copyWith(
-                      fontWeight:
-                          r.isMe ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: r.isMe ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                   trailing: Text(
@@ -312,10 +307,7 @@ class _LeaderboardPreview extends ConsumerWidget {
       backgroundColor: bg,
       child: Text(
         '$rank',
-        style: tt.labelSmall?.copyWith(
-          color: fg,
-          fontWeight: FontWeight.bold,
-        ),
+        style: tt.labelSmall?.copyWith(color: fg, fontWeight: FontWeight.bold),
       ),
     );
   }

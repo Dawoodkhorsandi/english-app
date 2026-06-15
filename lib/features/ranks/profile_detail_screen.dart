@@ -21,9 +21,8 @@ class ProfileDetailScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Profile')),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, s) => Center(
-          child: Text('User not found', style: textTheme.bodyLarge),
-        ),
+        error: (e, s) =>
+            Center(child: Text('User not found', style: textTheme.bodyLarge)),
         data: (profile) => ListView(
           padding: const EdgeInsets.all(AppSpacing.pagePadding),
           children: [
@@ -105,9 +104,7 @@ class ProfileDetailScreen extends ConsumerWidget {
           children: [
             Text(
               m.label,
-              style: textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppSpacing.sm),
             Row(
@@ -119,9 +116,7 @@ class ProfileDetailScreen extends ConsumerWidget {
                     margin: const EdgeInsets.symmetric(
                       horizontal: AppSpacing.sm,
                     ),
-                    decoration: BoxDecoration(
-                      borderRadius: AppRadius.borderXs,
-                    ),
+                    decoration: BoxDecoration(borderRadius: AppRadius.borderXs),
                     child: Row(
                       children: [
                         Expanded(

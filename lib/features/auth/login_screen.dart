@@ -182,9 +182,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         child: Text(
                           'OR',
-                          style: TextStyle(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+                          style: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
                       ),
                       const Expanded(child: Divider()),
@@ -201,10 +199,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             );
                           },
-                    icon: const Icon(
-                      Icons.telegram,
-                      color: AppColors.telegram,
-                    ),
+                    icon: const Icon(Icons.telegram, color: AppColors.telegram),
                     label: const Text('Continue with Telegram'),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.telegram),
@@ -396,10 +391,7 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Steps:',
-                        style: textTheme.titleSmall,
-                      ),
+                      Text('Steps:', style: textTheme.titleSmall),
                       const SizedBox(height: AppSpacing.sm),
                       const Text('1. Tap "Open Telegram" below'),
                       const SizedBox(height: AppSpacing.xs),
@@ -417,10 +409,7 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
               const SizedBox(height: AppSpacing.xxl),
               OutlinedButton.icon(
                 onPressed: auth.isLoading ? null : _openTelegram,
-                icon: const Icon(
-                  Icons.telegram,
-                  color: AppColors.telegram,
-                ),
+                icon: const Icon(Icons.telegram, color: AppColors.telegram),
                 label: const Text('Open Telegram'),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.telegram),

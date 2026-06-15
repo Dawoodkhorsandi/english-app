@@ -58,10 +58,7 @@ class ActivityHeatmap extends StatelessWidget {
             color: cellColor(level(count)),
             borderRadius: AppRadius.borderXs,
             border: isToday
-                ? Border.all(
-                    color: colorScheme.primary,
-                    width: 1.5,
-                  )
+                ? Border.all(color: colorScheme.primary, width: 1.5)
                 : null,
           ),
         );

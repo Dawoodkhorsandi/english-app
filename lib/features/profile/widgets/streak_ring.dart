@@ -61,10 +61,7 @@ class _StreakRingState extends State<StreakRing>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (widget.streak >= 3)
-                    Text(
-                      '\u{1F525}',
-                      style: textTheme.bodyLarge,
-                    ),
+                    Text('\u{1F525}', style: textTheme.bodyLarge),
                   Text(
                     '${widget.streak}',
                     style: textTheme.headlineMedium?.copyWith(

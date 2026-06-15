@@ -51,10 +51,7 @@ class WordBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            term,
-            style: textTheme.headlineSmall,
-          ),
+          Text(term, style: textTheme.headlineSmall),
           if (pronunciation != null && pronunciation!.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(
@@ -66,10 +63,7 @@ class WordBottomSheet extends StatelessWidget {
           ],
           if (persian != null && persian!.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              persian!,
-              style: textTheme.bodyLarge,
-            ),
+            Text(persian!, style: textTheme.bodyLarge),
           ],
           if (meaning != null && meaning!.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),

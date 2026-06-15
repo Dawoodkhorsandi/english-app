@@ -48,9 +48,7 @@ class ActivitySection extends StatelessWidget {
       children: [
         Text(
           value,
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         Text(label, style: textTheme.bodySmall),
       ],

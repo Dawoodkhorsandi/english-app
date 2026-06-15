@@ -67,10 +67,7 @@ class GrammarLessonScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Row(
                     children: [
-                      Text(
-                        '\u{1F4A1} ',
-                        style: textTheme.titleMedium,
-                      ),
+                      Text('\u{1F4A1} ', style: textTheme.titleMedium),
                       Expanded(child: Text(lesson.tip)),
                     ],
                   ),

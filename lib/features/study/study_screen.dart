@@ -41,9 +41,7 @@ class StudyScreen extends ConsumerWidget {
                 );
               }
               return Column(
-                children: decks
-                    .map((d) => _DeckTile(deck: d))
-                    .toList(),
+                children: decks.map((d) => _DeckTile(deck: d)).toList(),
               );
             },
           ),
@@ -55,9 +53,9 @@ class StudyScreen extends ConsumerWidget {
           Card(
             clipBehavior: Clip.antiAlias,
             child: InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const GrammarScreen()),
-              ),
+              onTap: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const GrammarScreen())),
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.cardPadding),
                 child: Row(
@@ -126,9 +124,9 @@ class _SectionHeader extends StatelessWidget {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.5,
+      ),
     );
   }
 }
@@ -246,10 +244,8 @@ class _ContentGrid extends StatelessWidget {
           child: InkWell(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => ContentListScreen(
-                  kind: ct.kind,
-                  title: ct.label,
-                ),
+                builder: (_) =>
+                    ContentListScreen(kind: ct.kind, title: ct.label),
               ),
             ),
             child: Padding(
@@ -258,11 +254,7 @@ class _ContentGrid extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    ct.icon,
-                    color: colorScheme.primary,
-                    size: 24,
-                  ),
+                  Icon(ct.icon, color: colorScheme.primary, size: 24),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
                     ct.label,

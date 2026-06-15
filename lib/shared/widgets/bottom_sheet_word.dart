@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_spacing.dart';
 
 class WordBottomSheet extends StatelessWidget {
   final String term;
@@ -28,9 +29,6 @@ class WordBottomSheet extends StatelessWidget {
   }) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
       builder: (_) => WordBottomSheet(
         term: term,
         meaning: meaning,
@@ -44,53 +42,50 @@ class WordBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.xxl),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(context).hintColor.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           Text(
             term,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: textTheme.headlineSmall,
           ),
           if (pronunciation != null && pronunciation!.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
             Text(
               pronunciation!,
-              style: TextStyle(color: Theme.of(context).hintColor),
+              style: textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
           if (persian != null && persian!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(persian!, style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              persian!,
+              style: textTheme.bodyLarge,
+            ),
           ],
           if (meaning != null && meaning!.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(meaning!),
           ],
           if (example != null && example!.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               example!,
-              style: TextStyle(
+              style: textTheme.bodyMedium?.copyWith(
                 fontStyle: FontStyle.italic,
-                color: Theme.of(context).hintColor,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           if (onOpenDictionary != null)
             SizedBox(
               width: double.infinity,

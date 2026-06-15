@@ -9,7 +9,7 @@ void main() {
   group('SwipeSession', () {
     testWidgets('renders empty state when no cards', (tester) async {
       await tester.pumpWidget(
-        wrapInApp(SwipeSession(cards: const [], onAnswer: (_, __) async {})),
+        wrapInApp(SwipeSession(cards: const [], onAnswer: (_, _) async {})),
       );
       await tester.pump();
       expect(find.text('No cards to review.'), findsOneWidget);
@@ -20,7 +20,7 @@ void main() {
         SwipeCard(front: 'Ubiquitous', back: 'Everywhere', term: 'ubiquitous'),
       ];
       await tester.pumpWidget(
-        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, _) async {})),
       );
       await tester.pump();
       expect(find.text('Ubiquitous'), findsOneWidget);
@@ -33,7 +33,7 @@ void main() {
         SwipeCard(front: 'B', back: 'B-back', term: 'b'),
       ];
       await tester.pumpWidget(
-        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, _) async {})),
       );
       await tester.pump();
       expect(find.text('2 remaining'), findsOneWidget);
@@ -44,7 +44,7 @@ void main() {
         SwipeCard(front: 'Ubiquitous', back: 'Everywhere', term: 'ubiquitous'),
       ];
       await tester.pumpWidget(
-        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, _) async {})),
       );
       await tester.pump();
       expect(find.text('Ubiquitous'), findsOneWidget);
@@ -113,7 +113,7 @@ void main() {
         wrapInApp(
           SwipeSession(
             cards: cards,
-            onAnswer: (_, __) async {},
+            onAnswer: (_, _) async {},
             doneText: 'All done!',
           ),
         ),
@@ -134,7 +134,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, _) async {})),
       );
       await tester.pump();
 
@@ -151,7 +151,7 @@ void main() {
         wrapInApp(
           SwipeSession(
             cards: const [],
-            onAnswer: (_, __) async {},
+            onAnswer: (_, _) async {},
             emptyText: 'Nothing to study',
           ),
         ),
@@ -167,7 +167,7 @@ void main() {
         wrapInApp(
           SwipeSession(
             cards: cards,
-            onAnswer: (_, __) async {},
+            onAnswer: (_, _) async {},
             doneText: 'Finished!',
           ),
         ),
@@ -187,7 +187,7 @@ void main() {
       ];
 
       await tester.pumpWidget(
-        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, __) async {})),
+        wrapInApp(SwipeSession(cards: cards, onAnswer: (_, _) async {})),
       );
       await tester.pump();
 

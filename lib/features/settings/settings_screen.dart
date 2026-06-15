@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/error_state.dart';
 
@@ -24,13 +26,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     final settingsAsync = ref.watch(settingsProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('⚙️ Settings')),
       body: settingsAsync.when(
         loading: () => const Padding(
-          padding: EdgeInsets.all(16),
+          padding: EdgeInsets.all(AppSpacing.pagePadding),
           child: LoadingSkeleton(lines: 8),
         ),
         error: (e, s) => ErrorState(
@@ -42,11 +45,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _nameController.text = settings.name;
           }
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.pagePadding),
             children: [
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.cardPadding),
                   child: TextFormField(
                     controller: _nameController,
                     decoration: const InputDecoration(
@@ -59,20 +62,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.cardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Level',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.sm),
                       Wrap(
-                        spacing: 8,
+                        spacing: AppSpacing.chipGap,
                         children: settings.levels
                             .map(
                               (l) => ChoiceChip(
@@ -90,7 +95,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Card(
                 child: Column(
                   children: [
@@ -123,11 +128,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Card(
                 child: ListTile(
                   title: const Text('Logout'),
-                  leading: const Icon(Icons.logout, color: Colors.red),
+                  leading: const Icon(Icons.logout, color: AppColors.danger),
                   onTap: () async {
                     await ref.read(authProvider.notifier).logout();
                     if (context.mounted) Navigator.of(context).pop();
@@ -158,10 +163,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 child: Row(
                   children: [
                     if (m == current)
-                      const Icon(Icons.check, size: 18, color: Colors.green)
+                      const Icon(
+                        Icons.check,
+                        size: 18,
+                        color: AppColors.success,
+                      )
                     else
                       const SizedBox(width: 18),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.md),
                     Text('$m minutes'),
                   ],
                 ),

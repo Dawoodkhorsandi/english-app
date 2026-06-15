@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import 'profile_detail_screen.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
@@ -12,19 +13,22 @@ class RanksScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
     final boardAsync = ref.watch(leaderboardProvider);
     final currentMetric = ref.watch(leaderboardMetricProvider);
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '🏆 Leaderboard',
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -36,7 +40,7 @@ class RanksScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Expanded(
             child: boardAsync.when(
               loading: () => const LoadingSkeleton(lines: 10),
@@ -56,19 +60,25 @@ class RanksScreen extends ConsumerWidget {
                   children: [
                     if (resp.me != null)
                       Card(
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: AppSpacing.md),
                         child: ListTile(
                           leading: Text(
                             '#${resp.me!.rank}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           title: Text(
                             resp.me!.name.isNotEmpty ? resp.me!.name : 'You',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           trailing: Text(
                             '${resp.me!.value}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -78,10 +88,10 @@ class RanksScreen extends ConsumerWidget {
                         itemBuilder: (context, i) {
                           final r = resp.rows[i];
                           return ListTile(
-                            leading: _medal(r.rank),
+                            leading: _medal(r.rank, textTheme),
                             title: Text(
                               r.name.isNotEmpty ? r.name : 'User',
-                              style: TextStyle(
+                              style: textTheme.bodyLarge?.copyWith(
                                 fontWeight: r.isMe
                                     ? FontWeight.bold
                                     : FontWeight.normal,
@@ -89,7 +99,7 @@ class RanksScreen extends ConsumerWidget {
                             ),
                             trailing: Text(
                               '${r.value}',
-                              style: const TextStyle(
+                              style: textTheme.bodyLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -120,7 +130,7 @@ class RanksScreen extends ConsumerWidget {
     String current,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: AppSpacing.chipGap),
       child: FilterChip(
         label: Text(label),
         selected: current == metric,
@@ -133,18 +143,18 @@ class RanksScreen extends ConsumerWidget {
     );
   }
 
-  Widget _medal(int rank) {
+  Widget _medal(int rank, TextTheme textTheme) {
     switch (rank) {
       case 1:
-        return const Text('🥇', style: TextStyle(fontSize: 24));
+        return Text('🥇', style: textTheme.headlineSmall);
       case 2:
-        return const Text('🥈', style: TextStyle(fontSize: 24));
+        return Text('🥈', style: textTheme.headlineSmall);
       case 3:
-        return const Text('🥉', style: TextStyle(fontSize: 24));
+        return Text('🥉', style: textTheme.headlineSmall);
       default:
         return CircleAvatar(
           radius: 14,
-          child: Text('#$rank', style: const TextStyle(fontSize: 12)),
+          child: Text('#$rank', style: textTheme.labelSmall),
         );
     }
   }

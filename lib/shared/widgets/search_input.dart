@@ -33,7 +33,6 @@ class _SearchInputState extends State<SearchInput> {
       controller: _controller,
       decoration: InputDecoration(
         hintText: widget.placeholder,
-        border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.search),
         suffixIcon: _controller.text.isNotEmpty
             ? IconButton(

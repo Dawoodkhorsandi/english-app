@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/stats.dart';
+import '../../../core/theme/app_spacing.dart';
 import 'heatmap.dart';
 
 class ActivitySection extends StatelessWidget {
@@ -8,25 +9,33 @@ class ActivitySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.cardPadding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Activity',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _statItem('${stats.activeDays}', 'Active days'),
-                _statItem('${stats.activityDays.length}', 'This week'),
+                _statItem('${stats.activeDays}', 'Active days', textTheme),
+                _statItem(
+                  '${stats.activityDays.length}',
+                  'This week',
+                  textTheme,
+                ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             ActivityHeatmap(activityCounts: stats.activityCounts),
           ],
         ),
@@ -34,14 +43,16 @@ class ActivitySection extends StatelessWidget {
     );
   }
 
-  Widget _statItem(String value, String label) {
+  Widget _statItem(String value, String label, TextTheme textTheme) {
     return Column(
       children: [
         Text(
           value,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        Text(label, style: const TextStyle(fontSize: 12)),
+        Text(label, style: textTheme.bodySmall),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api/api_endpoints.dart';
 import '../../core/auth/auth_provider.dart';
+import '../../core/theme/app_colors.dart';
 
 class BookmarkStar extends ConsumerStatefulWidget {
   final String term;
@@ -44,10 +45,9 @@ class _BookmarkStarState extends ConsumerState<BookmarkStar> {
     return IconButton(
       icon: Icon(
         _bookmarked ? Icons.star : Icons.star_border,
-        color: _bookmarked ? Colors.amber : null,
+        color: _bookmarked ? AppColors.bookmark : null,
       ),
       onPressed: _toggle,
-      splashRadius: 20,
     );
   }
 }

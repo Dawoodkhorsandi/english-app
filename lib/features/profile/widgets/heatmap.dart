@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class ActivityHeatmap extends StatelessWidget {
   final Map<String, int> activityCounts;
@@ -7,6 +9,9 @@ class ActivityHeatmap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     final now = DateTime.now();
     final days = <DateTime>[];
     for (int i = 111; i >= 0; i--) {
@@ -21,28 +26,23 @@ class ActivityHeatmap extends StatelessWidget {
       return 4;
     }
 
-    Color cellColor(int level) {
-      switch (level) {
-        case 0:
-          return Theme.of(context).brightness == Brightness.dark
-              ? Colors.grey[850]!
-              : Colors.grey[200]!;
+    Color cellColor(int lvl) {
+      switch (lvl) {
         case 1:
-          return AppColors.success.withValues(alpha: 0.3);
+          return isDark ? AppColors.heatmapLowDark : AppColors.heatmapLow;
         case 2:
-          return AppColors.success.withValues(alpha: 0.5);
+          return isDark ? AppColors.heatmapMedDark : AppColors.heatmapMed;
         case 3:
-          return AppColors.success.withValues(alpha: 0.7);
         case 4:
-          return AppColors.success;
+          return isDark ? AppColors.heatmapHighDark : AppColors.heatmapHigh;
         default:
-          return Colors.grey[200]!;
+          return isDark ? AppColors.heatmapEmptyDark : AppColors.heatmapEmpty;
       }
     }
 
     return Wrap(
-      spacing: 3,
-      runSpacing: 3,
+      spacing: AppSpacing.xs,
+      runSpacing: AppSpacing.xs,
       children: days.map((day) {
         final key =
             '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
@@ -52,14 +52,14 @@ class ActivityHeatmap extends StatelessWidget {
             day.month == now.month &&
             day.day == now.day;
         return Container(
-          width: 12,
-          height: 12,
+          width: AppSpacing.md,
+          height: AppSpacing.md,
           decoration: BoxDecoration(
             color: cellColor(level(count)),
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: AppRadius.borderXs,
             border: isToday
                 ? Border.all(
-                    color: Theme.of(context).colorScheme.primary,
+                    color: colorScheme.primary,
                     width: 1.5,
                   )
                 : null,

@@ -3,105 +3,92 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import 'deck_detail_screen.dart';
 import 'grammar_screen.dart';
+import 'practice_screen.dart';
+import '../quiz/quiz_screen.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
+import '../../core/theme/app_spacing.dart';
 
 class StudyScreen extends ConsumerWidget {
   const StudyScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
     final decksAsync = ref.watch(decksProvider);
 
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(decksProvider),
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.pagePadding),
         children: [
-          const Text(
-            '📚 Study',
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          Text(
+            '\u{1F4DA} Study',
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.cardPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Practice now',
-                    style: TextStyle(
-                      fontSize: 13,
+                    style: textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: AppSpacing.chipGap,
+                    runSpacing: AppSpacing.chipGap,
                     children: [
-                      _practiceChip(context, '🧩', 'Quiz', () {
+                      _practiceChip(context, '\u{1F9E9}', 'Quiz', () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const _QuizPlaceholder(),
+                            builder: (_) => const QuizScreen(),
                           ),
                         );
                       }),
-                      _practiceChip(context, '📘', 'New word', () {
+                      _practiceChip(context, '\u{1F4D8}', 'New word', () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const _PracticePlaceholder(
-                              kind: 'word',
-                              emoji: '📘',
-                              title: 'New Word',
-                            ),
+                            builder: (_) => const PracticeScreen(kind: 'word'),
                           ),
                         );
                       }),
-                      _practiceChip(context, '💬', 'Idiom', () {
+                      _practiceChip(context, '\u{1F4AC}', 'Idiom', () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const _PracticePlaceholder(
-                              kind: 'idiom',
-                              emoji: '💬',
-                              title: 'Idiom',
-                            ),
+                            builder: (_) => const PracticeScreen(kind: 'idiom'),
                           ),
                         );
                       }),
-                      _practiceChip(context, '🔗', 'Collocation', () {
+                      _practiceChip(context, '\u{1F517}', 'Collocation', () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const _PracticePlaceholder(
-                              kind: 'collocation',
-                              emoji: '🔗',
-                              title: 'Collocation',
-                            ),
+                            builder: (_) =>
+                                const PracticeScreen(kind: 'collocation'),
                           ),
                         );
                       }),
-                      _practiceChip(context, '📖', 'Story', () {
+                      _practiceChip(context, '\u{1F4D6}', 'Story', () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const _PracticePlaceholder(
-                              kind: 'story',
-                              emoji: '📖',
-                              title: 'Story',
-                            ),
+                            builder: (_) => const PracticeScreen(kind: 'story'),
                           ),
                         );
                       }),
-                      _practiceChip(context, '💡', 'Tip', () {
+                      _practiceChip(context, '\u{1F4A1}', 'Tip', () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => const _PracticePlaceholder(
-                              kind: 'tip',
-                              emoji: '💡',
-                              title: 'Tip',
-                            ),
+                            builder: (_) => const PracticeScreen(kind: 'tip'),
                           ),
                         );
                       }),
@@ -111,31 +98,29 @@ class StudyScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           GestureDetector(
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const GrammarScreen())),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const GrammarScreen()),
+            ),
             child: Card(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.cardPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Grammar lessons',
-                      style: TextStyle(
-                        fontSize: 13,
+                      style: textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.xs),
                     Text(
                       'Learn one pattern at a time, from easy to advanced.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(context).hintColor,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -143,7 +128,7 @@ class StudyScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           decksAsync.when(
             loading: () => const LoadingSkeleton(lines: 5),
             error: (e, s) => ErrorState(
@@ -159,7 +144,8 @@ class StudyScreen extends ConsumerWidget {
                 );
               }
               return Column(
-                children: decks.map((d) => _deckCard(context, d)).toList(),
+                children:
+                    decks.map((d) => _deckCard(context, d, textTheme)).toList(),
               );
             },
           ),
@@ -181,13 +167,13 @@ class StudyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _deckCard(BuildContext context, dynamic deck) {
+  Widget _deckCard(BuildContext context, dynamic deck, TextTheme textTheme) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppSpacing.itemGap),
       child: ListTile(
         title: Text(
           deck.name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
+          style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text('${deck.mastered} mastered'),
         trailing: const Icon(Icons.chevron_right),
@@ -195,62 +181,6 @@ class StudyScreen extends ConsumerWidget {
           MaterialPageRoute(
             builder: (_) =>
                 DeckDetailScreen(deckId: deck.id, deckName: deck.name),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuizPlaceholder extends StatelessWidget {
-  const _QuizPlaceholder();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quiz')),
-      body: const Center(child: Text('Open Quiz from the Study tab')),
-    );
-  }
-}
-
-class _PracticePlaceholder extends StatelessWidget {
-  final String kind;
-  final String emoji;
-  final String title;
-  const _PracticePlaceholder({
-    required this.kind,
-    required this.emoji,
-    required this.title,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('$emoji $title')),
-      body: Center(
-        child: Card(
-          margin: const EdgeInsets.all(24),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(emoji, style: const TextStyle(fontSize: 48)),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Practice your $kind skills here.',
-                  style: TextStyle(color: Theme.of(context).hintColor),
-                ),
-              ],
-            ),
           ),
         ),
       ),

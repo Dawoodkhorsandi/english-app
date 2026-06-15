@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vector_math/vector_math_64.dart' as vm;
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class SwipeCard {
   final String front;
@@ -74,31 +76,41 @@ class _SwipeSessionState extends State<SwipeSession> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     if (widget.cards.isEmpty) {
       return Center(
         child: Text(
           widget.emptyText,
-          style: TextStyle(color: Theme.of(context).hintColor),
+          style: textTheme.bodyLarge?.copyWith(color: colorScheme.outline),
         ),
       );
     }
     if (_finished) {
-      return _buildCompletion();
+      return _buildCompletion(colorScheme, textTheme);
     }
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.pagePadding,
+            vertical: AppSpacing.sm,
+          ),
           child: Row(
             children: [
               Text(
                 '${_queue.length} remaining',
-                style: TextStyle(color: Theme.of(context).hintColor),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.outline,
+                ),
               ),
               const Spacer(),
               Text(
                 '$_knownCount known',
-                style: const TextStyle(color: AppColors.success),
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.success,
+                ),
               ),
             ],
           ),
@@ -118,16 +130,16 @@ class _SwipeSessionState extends State<SwipeSession> {
             onTap: () => setState(() => _flipped = !_flipped),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(AppSpacing.pagePadding),
               transform: Matrix4.identity()
                 ..setTranslation(vm.Vector3(_dx, 0.0, 0.0))
                 ..rotateZ(_dx * 0.001),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(18),
+                color: colorScheme.surface,
+                borderRadius: AppRadius.borderXxl,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: colorScheme.shadow.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -137,7 +149,7 @@ class _SwipeSessionState extends State<SwipeSession> {
                 children: [
                   Center(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(AppSpacing.xxl),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -145,34 +157,31 @@ class _SwipeSessionState extends State<SwipeSession> {
                             Text(
                               _queue.first.back,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 17),
+                              style: textTheme.bodyLarge,
                             ),
                           ] else ...[
                             Text(
                               _queue.first.front,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 30,
+                              style: textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             if (_queue.first.sub != null) ...[
-                              const SizedBox(height: 8),
+                              const SizedBox(height: AppSpacing.sm),
                               Text(
                                 _queue.first.sub!,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).hintColor,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.outline,
                                 ),
                               ),
                             ],
                           ],
-                          const SizedBox(height: 16),
+                          const SizedBox(height: AppSpacing.lg),
                           Text(
                             _flipped ? 'Tap to see front' : 'Tap to flip',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).hintColor,
+                            style: textTheme.labelSmall?.copyWith(
+                              color: colorScheme.outline,
                             ),
                           ),
                         ],
@@ -181,23 +190,23 @@ class _SwipeSessionState extends State<SwipeSession> {
                   ),
                   if (_dx > 30)
                     Positioned(
-                      top: 16,
-                      right: 16,
+                      top: AppSpacing.lg,
+                      right: AppSpacing.lg,
                       child: Opacity(
                         opacity: (_dx / 90).clamp(0.0, 1.0),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.success,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppRadius.borderSm,
                           ),
-                          child: const Text(
+                          child: Text(
                             'KNEW IT',
-                            style: TextStyle(
-                              color: Colors.white,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -206,23 +215,23 @@ class _SwipeSessionState extends State<SwipeSession> {
                     ),
                   if (_dx < -30)
                     Positioned(
-                      top: 16,
-                      left: 16,
+                      top: AppSpacing.lg,
+                      left: AppSpacing.lg,
                       child: Opacity(
                         opacity: (-_dx / 90).clamp(0.0, 1.0),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.danger,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: AppRadius.borderSm,
                           ),
-                          child: const Text(
+                          child: Text(
                             'FORGOT',
-                            style: TextStyle(
-                              color: Colors.white,
+                            style: textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -235,7 +244,7 @@ class _SwipeSessionState extends State<SwipeSession> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.pagePadding),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -245,7 +254,7 @@ class _SwipeSessionState extends State<SwipeSession> {
                 label: const Text('Forgot'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.danger,
-                  foregroundColor: Colors.white,
+                  foregroundColor: colorScheme.onPrimary,
                 ),
               ),
               ElevatedButton.icon(
@@ -254,7 +263,7 @@ class _SwipeSessionState extends State<SwipeSession> {
                 label: const Text('Knew it'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.success,
-                  foregroundColor: Colors.white,
+                  foregroundColor: colorScheme.onPrimary,
                 ),
               ),
             ],
@@ -264,7 +273,7 @@ class _SwipeSessionState extends State<SwipeSession> {
     );
   }
 
-  Widget _buildCompletion() {
+  Widget _buildCompletion(ColorScheme colorScheme, TextTheme textTheme) {
     final pct = widget.cards.isNotEmpty
         ? (_knownCount / widget.cards.length)
         : 0.0;
@@ -278,21 +287,22 @@ class _SwipeSessionState extends State<SwipeSession> {
             child: CircularProgressIndicator(
               value: pct,
               strokeWidth: 8,
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.15),
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.15),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           Text(
             widget.doneText,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             '$_knownCount known / ${widget.cards.length - _knownCount} forgot',
+            style: textTheme.bodyMedium,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('Done'),

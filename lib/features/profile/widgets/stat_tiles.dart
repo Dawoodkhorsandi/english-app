@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/stats.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class StatTiles extends StatelessWidget {
   final Stats stats;
@@ -7,6 +8,9 @@ class StatTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     final tiles = [
       ('\u{1F4DA}', '${stats.words}', 'Words'),
       ('\u2705', '${stats.mastered}', 'Mastered'),
@@ -23,8 +27,8 @@ class StatTiles extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        mainAxisSpacing: AppSpacing.itemGap,
+        crossAxisSpacing: AppSpacing.itemGap,
         childAspectRatio: 2,
       ),
       itemCount: tiles.length,
@@ -32,25 +36,23 @@ class StatTiles extends StatelessWidget {
         final (emoji, count, label) = tiles[i];
         return Card(
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 18)),
-                const SizedBox(height: 4),
+                Text(emoji, style: textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   count,
-                  style: const TextStyle(
-                    fontSize: 20,
+                  style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).hintColor,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],

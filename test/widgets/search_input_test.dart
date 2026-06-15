@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:english_app/core/theme/app_theme.dart';
 import 'package:english_app/shared/widgets/search_input.dart';
 
-Widget wrapInApp(Widget child) => MaterialApp(home: Scaffold(body: child));
+Widget wrapInApp(Widget child) => MaterialApp(
+      theme: AppTheme.light,
+      home: Scaffold(body: child),
+    );
 
 void main() {
   group('SearchInput', () {
@@ -91,8 +95,11 @@ void main() {
     testWidgets('has OutlineInputBorder', (tester) async {
       await tester.pumpWidget(wrapInApp(SearchInput(onSearch: (_) {})));
 
-      final textField = tester.widget<TextField>(find.byType(TextField));
-      expect(textField.decoration?.border, isA<OutlineInputBorder>());
+      // Border comes from InputDecorationTheme, not set on the widget directly.
+      final decorator = tester.widget<InputDecorator>(
+        find.byType(InputDecorator).first,
+      );
+      expect(decorator.decoration.border, isA<OutlineInputBorder>());
     });
 
     testWidgets('default placeholder is Search...', (tester) async {

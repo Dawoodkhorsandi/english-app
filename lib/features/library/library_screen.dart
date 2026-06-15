@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import '../../core/models/vocab_item.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/error_state.dart';
@@ -57,16 +59,21 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.pagePadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '📚 Library',
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           if (_filter == LibraryFilter.dict)
             TextField(
               controller: _searchController,
@@ -88,7 +95,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               ),
               onChanged: _onSearchChanged,
             ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           SizedBox(
             height: 36,
             child: ListView(
@@ -96,7 +103,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               children: LibraryFilter.values
                   .map(
                     (f) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.only(right: AppSpacing.chipGap),
                       child: FilterChip(
                         label: Text(_filterLabel(f)),
                         selected: _filter == f,
@@ -112,8 +119,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                   .toList(),
             ),
           ),
-          const SizedBox(height: 12),
-          Expanded(child: _buildContent()),
+          const SizedBox(height: AppSpacing.md),
+          Expanded(child: _buildContent(textTheme, colorScheme)),
         ],
       ),
     );
@@ -140,23 +147,23 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     }
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(TextTheme textTheme, ColorScheme colorScheme) {
     switch (_filter) {
       case LibraryFilter.dict:
-        return _buildDictionary();
+        return _buildDictionary(textTheme, colorScheme);
       case LibraryFilter.quiz:
-        return _buildQuizHistory();
+        return _buildQuizHistory(textTheme, colorScheme);
       case LibraryFilter.idiom:
       case LibraryFilter.collocation:
       case LibraryFilter.story:
       case LibraryFilter.tip:
-        return _buildContentList(_filter.name);
+        return _buildContentList(_filter.name, textTheme, colorScheme);
       default:
-        return _buildWordList();
+        return _buildWordList(textTheme);
     }
   }
 
-  Widget _buildWordList() {
+  Widget _buildWordList(TextTheme textTheme) {
     final params = VocabParams(
       q: _searchQuery,
       bookmarks: _filter == LibraryFilter.bookmarks,
@@ -189,7 +196,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           itemBuilder: (context, i) {
             if (i == resp.items.length) {
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.md,
+                ),
                 child: Center(
                   child: TextButton(
                     onPressed: _loadMore,
@@ -198,14 +207,14 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 ),
               );
             }
-            return _wordRow(resp.items[i]);
+            return _wordRow(resp.items[i], textTheme);
           },
         );
       },
     );
   }
 
-  Widget _wordRow(VocabItem w) {
+  Widget _wordRow(VocabItem w, TextTheme textTheme) {
     final masteryIcon = w.mastery == 'mastered'
         ? '✅'
         : w.mastery == 'learning'
@@ -213,13 +222,20 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         : '🆕';
     return ListTile(
       leading: Text(masteryIcon),
-      title: Text(w.term, style: const TextStyle(fontWeight: FontWeight.w600)),
+      title: Text(
+        w.term,
+        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+      ),
       subtitle: Text(w.meaning, maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: BookmarkStar(term: w.term, initialBookmarked: w.bookmarked),
     );
   }
 
-  Widget _buildContentList(String kind) {
+  Widget _buildContentList(
+    String kind,
+    TextTheme textTheme,
+    ColorScheme colorScheme,
+  ) {
     final contentAsync = ref.watch(contentProvider(kind));
     return contentAsync.when(
       loading: () => const LoadingSkeleton(lines: 5),
@@ -242,7 +258,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             return ListTile(
               title: Text(
                 item.term,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               subtitle: Text(
                 item.meaning,
@@ -251,9 +269,8 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               ),
               trailing: Text(
                 item.sentAt,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).hintColor,
+                style: textTheme.labelSmall?.copyWith(
+                  color: colorScheme.outline,
                 ),
               ),
             );
@@ -263,7 +280,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     );
   }
 
-  Widget _buildQuizHistory() {
+  Widget _buildQuizHistory(TextTheme textTheme, ColorScheme colorScheme) {
     final quizAsync = ref.watch(quizHistoryProvider);
     return quizAsync.when(
       loading: () => const LoadingSkeleton(lines: 5),
@@ -286,14 +303,13 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             return ListTile(
               leading: Icon(
                 q.correct ? Icons.check_circle : Icons.cancel,
-                color: q.correct ? Colors.green : Colors.red,
+                color: q.correct ? AppColors.success : AppColors.danger,
               ),
-              title: Text(q.word),
+              title: Text(q.word, style: textTheme.bodyLarge),
               trailing: Text(
                 q.answeredAt,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).hintColor,
+                style: textTheme.labelSmall?.copyWith(
+                  color: colorScheme.outline,
                 ),
               ),
             );
@@ -303,7 +319,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     );
   }
 
-  Widget _buildDictionary() {
+  Widget _buildDictionary(TextTheme textTheme, ColorScheme colorScheme) {
     final dictAsync = ref.watch(dictionaryProvider(_searchQuery));
     if (_searchQuery.isEmpty) {
       return const EmptyState(
@@ -330,9 +346,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
           itemBuilder: (context, i) {
             final r = results[i];
             return Card(
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.cardPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -340,17 +356,16 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                       children: [
                         Text(
                           r['word'] ?? '',
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         if ((r['pos'] ?? '').isNotEmpty) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.sm),
                           Text(
                             r['pos'],
-                            style: TextStyle(
-                              color: Theme.of(context).hintColor,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.outline,
                             ),
                           ),
                         ],
@@ -359,18 +374,20 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     if ((r['pronunciation'] ?? '').isNotEmpty)
                       Text(
                         r['pronunciation'],
-                        style: TextStyle(color: Theme.of(context).hintColor),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.outline,
+                        ),
                       ),
                     if ((r['persian'] ?? '').isNotEmpty)
-                      Text(r['persian'], style: const TextStyle(fontSize: 16)),
+                      Text(r['persian'], style: textTheme.bodyLarge),
                     if ((r['definition'] ?? '').isNotEmpty)
-                      Text(r['definition']),
+                      Text(r['definition'], style: textTheme.bodyMedium),
                     if ((r['example'] ?? '').isNotEmpty)
                       Text(
                         r['example'],
-                        style: TextStyle(
+                        style: textTheme.bodyMedium?.copyWith(
                           fontStyle: FontStyle.italic,
-                          color: Theme.of(context).hintColor,
+                          color: colorScheme.outline,
                         ),
                       ),
                   ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/achievement.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class AchievementSection extends StatelessWidget {
   final List<Achievement> achievements;
@@ -14,6 +16,9 @@ class AchievementSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
     final grouped = <String, List<Achievement>>{};
     for (final a in achievements) {
       grouped.putIfAbsent(a.category, () => []).add(a);
@@ -24,32 +29,38 @@ class AchievementSection extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text(
+            Text(
               '\u{1F3C6} Achievements',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const Spacer(),
             Text(
               '$unlocked / $total',
-              style: TextStyle(color: Theme.of(context).hintColor),
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
         ...grouped.entries.map(
           (entry) => Card(
-            margin: const EdgeInsets.only(bottom: 8),
+            margin: const EdgeInsets.only(bottom: AppSpacing.itemGap),
             child: ExpansionTile(
               title: Text(
                 entry.key,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               children: entry.value
                   .map(
                     (a) => ListTile(
                       leading: Text(
                         a.icon,
-                        style: const TextStyle(fontSize: 24),
+                        style: textTheme.headlineSmall,
                       ),
                       title: Text(a.name),
                       subtitle: Column(
@@ -57,22 +68,23 @@ class AchievementSection extends StatelessWidget {
                         children: [
                           Text(
                             a.description,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).hintColor,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppSpacing.xs),
                           LinearProgressIndicator(
                             value: a.target > 0 ? a.progress / a.target : 0,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.15),
+                            backgroundColor:
+                                colorScheme.primary.withValues(alpha: 0.15),
                           ),
                         ],
                       ),
                       trailing: a.unlocked
-                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: AppColors.success,
+                            )
                           : null,
                     ),
                   )

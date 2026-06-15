@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_spacing.dart';
 
 class StreakRing extends StatefulWidget {
   final int streak;
@@ -37,6 +38,9 @@ class _StreakRingState extends State<StreakRing>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
@@ -49,22 +53,25 @@ class _StreakRingState extends State<StreakRing>
           child: CustomPaint(
             painter: _RingPainter(
               progress: progress * _animation.value,
-              color: Theme.of(context).colorScheme.primary,
+              color: colorScheme.primary,
+              trackColor: colorScheme.surfaceContainerHighest,
             ),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (widget.streak >= 3)
-                    const Text('\u{1F525}', style: TextStyle(fontSize: 20)),
+                    Text(
+                      '\u{1F525}',
+                      style: textTheme.bodyLarge,
+                    ),
                   Text(
                     '${widget.streak}',
-                    style: const TextStyle(
-                      fontSize: 32,
+                    style: textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Text('days', style: TextStyle(fontSize: 12)),
+                  Text('days', style: textTheme.bodySmall),
                 ],
               ),
             ),
@@ -78,18 +85,23 @@ class _StreakRingState extends State<StreakRing>
 class _RingPainter extends CustomPainter {
   final double progress;
   final Color color;
-  _RingPainter({required this.progress, required this.color});
+  final Color trackColor;
+  _RingPainter({
+    required this.progress,
+    required this.color,
+    required this.trackColor,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 8;
+    final radius = size.width / 2 - AppSpacing.sm;
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8
+      ..strokeWidth = AppSpacing.sm
       ..strokeCap = StrokeCap.round;
 
-    paint.color = color.withValues(alpha: 0.15);
+    paint.color = trackColor;
     canvas.drawCircle(center, radius, paint);
 
     paint.color = color;
@@ -104,5 +116,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter old) =>
-      old.progress != progress || old.color != color;
+      old.progress != progress ||
+      old.color != color ||
+      old.trackColor != trackColor;
 }

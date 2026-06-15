@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
+import '../../core/theme/app_spacing.dart';
 
 class PracticeScreen extends ConsumerWidget {
   final String kind;
@@ -8,6 +9,7 @@ class PracticeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
     final practiceAsync = ref.watch(practiceProvider(kind));
 
     return Scaffold(
@@ -18,27 +20,27 @@ class PracticeScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error loading $kind')),
         data: (data) {
-          if (data == null)
+          if (data == null) {
             return Center(child: Text('No $kind available right now.'));
+          }
           return Center(
             child: Card(
-              margin: const EdgeInsets.all(16),
+              margin: const EdgeInsets.all(AppSpacing.pagePadding),
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(AppSpacing.xxl),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       data['term'] ?? '',
-                      style: const TextStyle(
-                        fontSize: 24,
+                      style: textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.lg),
                     Text(
                       data['text'] ?? '',
-                      style: const TextStyle(fontSize: 16),
+                      style: textTheme.bodyLarge,
                     ),
                   ],
                 ),

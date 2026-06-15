@@ -8,6 +8,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/constants.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -48,71 +50,77 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(AppSpacing.xxl),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.school, size: 64, color: Color(0xFF2196F3)),
-                  const SizedBox(height: 16),
+                  Icon(
+                    Icons.school,
+                    size: AppSpacing.massive,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
                   Text(
-                    'English Muscle Memory',
+                    'Engram',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    style: textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   Text(
                     'AI-powered English practice',
                     textAlign: TextAlign.center,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: AppSpacing.huge),
                   if (!_isLogin)
                     TextFormField(
                       controller: _nameController,
                       decoration: const InputDecoration(
                         labelText: 'Name',
-                        border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.person),
                       ),
                       validator: (v) => v == null || v.trim().isEmpty
                           ? 'Name is required'
                           : null,
                     ),
-                  if (!_isLogin) const SizedBox(height: 16),
+                  if (!_isLogin) const SizedBox(height: AppSpacing.lg),
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: 'Email',
-                      border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.email),
                     ),
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return 'Email is required';
-                      if (!v.contains('@')) return 'Invalid email';
+                      }
+                      if (!v.contains('@')) {
+                        return 'Invalid email';
+                      }
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      border: const OutlineInputBorder(),
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -132,31 +140,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     },
                   ),
                   if (auth.error != null) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.md),
                     Text(
                       auth.error!,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: AppColors.danger),
                       textAlign: TextAlign.center,
                     ),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.xxl),
                   FilledButton(
                     onPressed: auth.isLoading ? null : _submit,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
                     child: auth.isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
+                        ? SizedBox(
+                            height: AppSpacing.xl,
+                            width: AppSpacing.xl,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              color: Colors.white,
+                              color: colorScheme.onPrimary,
                             ),
                           )
                         : Text(_isLogin ? 'Sign In' : 'Create Account'),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   TextButton(
                     onPressed: () => setState(() {
                       _isLogin = !_isLogin;
@@ -167,18 +172,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           : 'Already have an account? Sign In',
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  const Row(
+                  const SizedBox(height: AppSpacing.xxxl),
+                  Row(
                     children: [
-                      Expanded(child: Divider()),
+                      const Expanded(child: Divider()),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('OR', style: TextStyle(color: Colors.grey)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                        ),
+                        child: Text(
+                          'OR',
+                          style: TextStyle(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
                       ),
-                      Expanded(child: Divider()),
+                      const Expanded(child: Divider()),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   OutlinedButton.icon(
                     onPressed: auth.isLoading
                         ? null
@@ -189,11 +201,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             );
                           },
-                    icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
+                    icon: const Icon(
+                      Icons.telegram,
+                      color: AppColors.telegram,
+                    ),
                     label: const Text('Continue with Telegram'),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Color(0xFF0088CC)),
+                      side: const BorderSide(color: AppColors.telegram),
                     ),
                   ),
                 ],
@@ -218,14 +232,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               : 'English Muscle Memory v$version'
                     '${build.isEmpty ? '' : ' ($build)'}$mode';
           return Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).hintColor,
-                fontSize: 12,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           );
         },
@@ -289,7 +300,7 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Code detected — tap "Sign In with Code"'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.success,
               duration: Duration(seconds: 2),
             ),
           );
@@ -317,7 +328,7 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error ?? 'Invalid or expired code'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.danger,
         ),
       );
     }
@@ -345,6 +356,8 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
   @override
   Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     // Once authenticated, leave this screen so the auth gate shows the app
     // (covers the auto-detect path and guards against lingering on a stale
@@ -359,91 +372,94 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
       appBar: AppBar(title: const Text('Telegram Login')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.telegram, size: 64, color: Color(0xFF0088CC)),
-              const SizedBox(height: 24),
+              const Icon(
+                Icons.telegram,
+                size: AppSpacing.massive,
+                color: AppColors.telegram,
+              ),
+              const SizedBox(height: AppSpacing.xxl),
               Text(
                 'Login with Telegram',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
-              const Card(
+              const SizedBox(height: AppSpacing.lg),
+              Card(
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.cardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Steps:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: textTheme.titleSmall,
                       ),
-                      SizedBox(height: 8),
-                      Text('1. Tap "Open Telegram" below'),
-                      SizedBox(height: 4),
-                      Text('2. Send /login to the bot'),
-                      SizedBox(height: 4),
-                      Text('3. Copy the code it replies with'),
-                      SizedBox(height: 4),
-                      Text('4. Return here — the code auto-fills below'),
-                      SizedBox(height: 4),
-                      Text('5. Tap "Sign In with Code"'),
+                      const SizedBox(height: AppSpacing.sm),
+                      const Text('1. Tap "Open Telegram" below'),
+                      const SizedBox(height: AppSpacing.xs),
+                      const Text('2. Send /login to the bot'),
+                      const SizedBox(height: AppSpacing.xs),
+                      const Text('3. Copy the code it replies with'),
+                      const SizedBox(height: AppSpacing.xs),
+                      const Text('4. Return here — the code auto-fills below'),
+                      const SizedBox(height: AppSpacing.xs),
+                      const Text('5. Tap "Sign In with Code"'),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xxl),
               OutlinedButton.icon(
                 onPressed: auth.isLoading ? null : _openTelegram,
-                icon: const Icon(Icons.telegram, color: Color(0xFF0088CC)),
+                icon: const Icon(
+                  Icons.telegram,
+                  color: AppColors.telegram,
+                ),
                 label: const Text('Open Telegram'),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: const BorderSide(color: Color(0xFF0088CC)),
+                  side: const BorderSide(color: AppColors.telegram),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.xxxl),
               Row(
                 children: [
                   const Expanded(child: Divider()),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
                     child: Text(
                       'Enter code manually',
-                      style: TextStyle(
-                        color: Theme.of(context).hintColor,
-                        fontSize: 13,
-                      ),
+                      style: textTheme.bodySmall,
                     ),
                   ),
                   const Expanded(child: Divider()),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: _codeController,
                 textAlign: TextAlign.center,
                 textCapitalization: TextCapitalization.characters,
-                style: const TextStyle(
-                  fontSize: 28,
+                style: textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   letterSpacing: 6,
                   fontFamily: 'monospace',
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'A3F-K9M',
-                  hintStyle: TextStyle(
+                  hintStyle: textTheme.headlineSmall?.copyWith(
                     letterSpacing: 6,
                     fontFamily: 'monospace',
-                    color: Colors.grey,
+                    color: colorScheme.onSurfaceVariant,
                   ),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.vpn_key),
+                  prefixIcon: const Icon(Icons.vpn_key),
                 ),
                 maxLength: 7,
                 buildCounter:
@@ -463,7 +479,7 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
                   }
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               FilledButton.icon(
                 onPressed: auth.isLoading
                     ? null
@@ -475,15 +491,12 @@ class _TelegramCodeScreenState extends ConsumerState<TelegramCodeScreen>
                       },
                 icon: const Icon(Icons.login),
                 label: const Text('Sign In with Code'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
               ),
               if (auth.error != null) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 Text(
                   auth.error!,
-                  style: const TextStyle(color: Colors.red),
+                  style: const TextStyle(color: AppColors.danger),
                   textAlign: TextAlign.center,
                 ),
               ],

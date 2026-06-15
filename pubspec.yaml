@@ -1,7 +1,7 @@
 name: english_app
-description: "English Learning Mobile App - AI-powered English practice with spaced repetition"
+description: "Engram - AI-powered English learning with spaced repetition"
 publish_to: 'none'
-version: 1.2.4+10
+version: 1.3.0+11
 
 environment:
   sdk: ^3.12.2

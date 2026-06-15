@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../core/theme/app_radius.dart';
+import '../../core/theme/app_spacing.dart';
 
 class LoadingSkeleton extends StatelessWidget {
   final int lines;
@@ -7,24 +9,22 @@ class LoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Shimmer.fromColors(
-      baseColor: Theme.of(context).brightness == Brightness.dark
-          ? Colors.grey[800]!
-          : Colors.grey[300]!,
-      highlightColor: Theme.of(context).brightness == Brightness.dark
-          ? Colors.grey[700]!
-          : Colors.grey[100]!,
+      baseColor: colorScheme.surfaceContainerHighest,
+      highlightColor: colorScheme.surfaceContainerLow,
       child: Column(
         children: List.generate(
           lines,
           (i) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
             child: Container(
-              height: 16,
+              height: AppSpacing.skeletonLineHeight,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
+                color: colorScheme.surface,
+                borderRadius: AppRadius.borderXs,
               ),
             ),
           ),

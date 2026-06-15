@@ -6,6 +6,7 @@ import '../../features/library/library_screen.dart';
 import '../../features/study/study_screen.dart';
 import '../../features/review/review_screen.dart';
 import '../../features/ranks/ranks_screen.dart';
+import '../../features/settings/settings_screen.dart';
 
 final currentTabProvider = StateProvider<int>((ref) => 0);
 
@@ -30,6 +31,21 @@ class _MainShellState extends ConsumerState<MainShell> {
     final currentTab = ref.watch(currentTabProvider);
 
     return Scaffold(
+      appBar: currentTab == 0
+          ? AppBar(
+              title: const Text('Profile'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SettingsScreen(),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : null,
       body: _pages[currentTab],
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentTab,

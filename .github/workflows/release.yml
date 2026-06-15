@@ -121,7 +121,7 @@ jobs:
         with:
           name: "${{ github.ref_name }}"
           body: |
-            ## English Muscle Memory ${{ github.ref_name }}
+            ## Engram ${{ github.ref_name }}
 
             ### Downloads
             - **Android (Release)**: `english-app-${{ github.ref_name }}.apk` — no network inspector

@@ -10,6 +10,7 @@ class ApiEndpoints {
   static const profile = '/api/profile';
   static const kudos = '/api/kudos';
   static const reviewNext = '/api/review/next';
+  static const reviewCount = '/api/review/count';
   static const reviewAnswer = '/api/review/answer';
   static const reviewSummary = '/api/review/summary';
   static const decks = '/api/decks';

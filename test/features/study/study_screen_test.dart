@@ -38,27 +38,27 @@ Widget wrapInStudyApp({List<DeckProgress>? decks}) => ProviderScope(
 
 void main() {
   group('StudyScreen', () {
-    testWidgets('shows header', (tester) async {
+    testWidgets('shows section headers', (tester) async {
       await tester.pumpWidget(wrapInStudyApp());
       await tester.pumpAndSettle();
-      expect(find.textContaining('Study'), findsOneWidget);
+      expect(find.text('Decks'), findsOneWidget);
+      expect(find.text('Grammar'), findsOneWidget);
+      expect(find.text('Content'), findsOneWidget);
     });
 
-    testWidgets('shows practice chips', (tester) async {
+    testWidgets('shows content type cards', (tester) async {
       await tester.pumpWidget(wrapInStudyApp());
       await tester.pumpAndSettle();
-      expect(find.text('Quiz'), findsOneWidget);
-      expect(find.text('New word'), findsOneWidget);
-      expect(find.text('Idiom'), findsOneWidget);
-      expect(find.text('Collocation'), findsOneWidget);
-      expect(find.text('Story'), findsOneWidget);
-      expect(find.text('Tip'), findsOneWidget);
+      expect(find.text('Idioms'), findsOneWidget);
+      expect(find.text('Collocations'), findsOneWidget);
+      expect(find.text('Stories'), findsOneWidget);
+      expect(find.text('Tips'), findsOneWidget);
     });
 
     testWidgets('shows grammar card', (tester) async {
       await tester.pumpWidget(wrapInStudyApp());
       await tester.pumpAndSettle();
-      expect(find.text('Grammar lessons'), findsOneWidget);
+      expect(find.text('Grammar Lessons'), findsOneWidget);
     });
 
     testWidgets('shows deck list', (tester) async {
@@ -71,7 +71,7 @@ void main() {
     testWidgets('shows empty state when no decks', (tester) async {
       await tester.pumpWidget(wrapInStudyApp(decks: []));
       await tester.pumpAndSettle();
-      expect(find.text('No decks available.'), findsOneWidget);
+      expect(find.text('No decks yet'), findsOneWidget);
     });
   });
 }

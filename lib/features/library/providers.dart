@@ -37,6 +37,18 @@ class VocabParams {
     this.bookmarks = false,
     this.q = '',
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VocabParams &&
+          other.offset == offset &&
+          other.limit == limit &&
+          other.bookmarks == bookmarks &&
+          other.q == q;
+
+  @override
+  int get hashCode => Object.hash(offset, limit, bookmarks, q);
 }
 
 class VocabResponse {

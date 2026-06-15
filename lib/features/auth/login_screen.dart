@@ -228,8 +228,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ? ''
               : (kProfileMode ? ' · profile' : ' · debug');
           final label = version.isEmpty
-              ? 'English Muscle Memory'
-              : 'English Muscle Memory v$version'
+              ? 'Engram'
+              : 'Engram v$version'
                     '${build.isEmpty ? '' : ' ($build)'}$mode';
           return Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),

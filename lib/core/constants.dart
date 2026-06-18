@@ -19,5 +19,7 @@ const String botTelegramUsername = '@mymusclememorybot';
 // ---------------------------------------------------------------------------
 const String googleServerClientId = String.fromEnvironment(
   'GOOGLE_SERVER_CLIENT_ID',
+  defaultValue:
+      '498467144653-kuhj65utks079cja31k94ve7grrskk0i.apps.googleusercontent.com',
 );
 const String googleIosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');

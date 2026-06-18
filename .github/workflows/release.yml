@@ -49,6 +49,25 @@ jobs:
           cache: true
       - name: Install dependencies
         run: flutter pub get
+      - name: Configure Android release signing
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "No ANDROID_KEYSTORE_BASE64 secret set — release APK will be debug-signed."
+            exit 0
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > android/app/engram-release.jks
+          cat > android/key.properties <<EOF
+          storeFile=engram-release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+          echo "Release signing configured."
       - name: Build release APK
         run: flutter build apk --release
       - name: Upload release APK

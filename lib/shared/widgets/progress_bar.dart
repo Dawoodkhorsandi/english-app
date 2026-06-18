@@ -24,6 +24,7 @@ class ProgressBar extends StatelessWidget {
         borderRadius: AppRadius.borderFull,
       ),
       child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
         widthFactor: value.clamp(0.0, 1.0),
         child: Container(
           decoration: BoxDecoration(

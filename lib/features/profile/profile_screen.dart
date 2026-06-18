@@ -1,150 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
+import 'analytics_screen.dart';
 import 'widgets/activity_section.dart';
 import 'widgets/achievement_section.dart';
-import '../ranks/providers.dart';
 import '../ranks/leaderboard_screen.dart';
-import '../ranks/profile_detail_screen.dart';
+import '../settings/settings_screen.dart';
+import '../../core/auth/auth_provider.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../shared/widgets/icon_chip.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/error_state.dart';
+import '../../shared/widgets/progress_ring.dart';
+import '../../shared/widgets/stat_card.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final statsAsync = ref.watch(statsProvider);
 
-    return statsAsync.when(
-      loading: () => const Padding(
-        padding: EdgeInsets.all(AppSpacing.pagePadding),
-        child: LoadingSkeleton(lines: 8),
-      ),
-      error: (e, _) => ErrorState(
-        message: 'Could not load stats',
-        onRetry: () => ref.invalidate(statsProvider),
-      ),
-      data: (stats) => RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(statsProvider);
-          ref.invalidate(leaderboardProvider);
-        },
+    return SafeArea(
+      bottom: false,
+      child: RefreshIndicator(
+        onRefresh: () async => ref.invalidate(statsProvider),
         child: ListView(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.pagePadding,
             vertical: AppSpacing.md,
           ),
           children: [
-            // --- Stat summary row ---
+            // --- Header ---
             Row(
               children: [
-                _MetricCard(
-                  icon: Icons.local_fire_department,
-                  iconColor: Colors.deepOrange,
-                  value: '${stats.currentStreak}',
-                  label: 'Streak',
+                Expanded(
+                  child: Text(
+                    'Profile',
+                    style: textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                _MetricCard(
-                  icon: Icons.auto_stories,
-                  iconColor: colorScheme.primary,
-                  value: '${stats.words}',
-                  label: 'Words',
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                _MetricCard(
-                  icon: Icons.check_circle,
-                  iconColor: const Color(0xFF22C55E),
-                  value: '${stats.mastered}',
-                  label: 'Mastered',
+                IconButton(
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.sm),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.cardPadding),
-                child: Row(
-                  children: [
-                    Text(
-                      'Level: ${stats.level}',
-                      style: textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      'Member since ${stats.memberSince}',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+            const SizedBox(height: AppSpacing.md),
+            statsAsync.when(
+              loading: () => const LoadingSkeleton(lines: 8),
+              error: (e, _) => ErrorState(
+                message: 'Could not load stats',
+                onRetry: () => ref.invalidate(statsProvider),
               ),
+              data: (stats) => _ProfileBody(stats: stats),
             ),
-            const SizedBox(height: AppSpacing.lg),
-
-            // --- Quiz accuracy ---
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.cardPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Quiz Accuracy',
-                      style: textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    LinearProgressIndicator(
-                      value: stats.quizPct / 100,
-                      minHeight: AppSpacing.sm,
-                      backgroundColor: colorScheme.primary.withValues(
-                        alpha: 0.15,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      '${stats.quizCorrect}/${stats.quizAnswered} correct (${stats.quizPct}%)',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-
-            // --- Activity heatmap ---
-            ActivitySection(stats: stats),
-            const SizedBox(height: AppSpacing.lg),
-
-            // --- Leaderboard preview ---
-            _SectionHeader(
-              title: 'Leaderboard',
-              onViewAll: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            _LeaderboardPreview(),
-            const SizedBox(height: AppSpacing.lg),
-
-            // --- Achievements ---
-            AchievementSection(
-              achievements: stats.achievements,
-              unlocked: stats.achUnlocked,
-              total: stats.achTotal,
-            ),
-            const SizedBox(height: AppSpacing.lg),
           ],
         ),
       ),
@@ -152,162 +69,255 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String value;
-  final String label;
-  const _MetricCard({
-    required this.icon,
-    required this.iconColor,
-    required this.value,
-    required this.label,
-  });
+class _ProfileBody extends ConsumerWidget {
+  final dynamic stats;
+  const _ProfileBody({required this.stats});
 
   @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSpacing.md,
-            horizontal: AppSpacing.sm,
-          ),
-          child: Column(
-            children: [
-              Icon(icon, color: iconColor, size: 20),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                value,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    final auth = ref.watch(authProvider);
+    final name = (auth.name != null && auth.name!.isNotEmpty)
+        ? auth.name!
+        : 'Learner';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // --- Identity row ---
+        Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: AppColors.heroGradient,
+                borderRadius: AppRadius.borderLg,
               ),
-              Text(
-                label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+              child: Text(
+                name[0].toUpperCase(),
+                style: textTheme.headlineSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${stats.level} · Member since ${stats.memberSince}',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                const Icon(
+                  Icons.local_fire_department,
+                  color: Colors.deepOrange,
+                  size: 22,
+                ),
+                const SizedBox(width: AppSpacing.xxs),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${stats.currentStreak}',
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'DAY STREAK',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 9,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+
+        // --- Stat cards ---
+        Row(
+          children: [
+            Expanded(
+              child: StatCard(
+                value: '${stats.words}',
+                label: 'Words',
+                color: AppColors.accentBlue,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: StatCard(
+                value: '${stats.mastered}',
+                label: 'Mastered',
+                color: AppColors.success,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: StatCard(
+                value: '${stats.currentStreak}',
+                label: 'Streak',
+                color: AppColors.accentOrange,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: StatCard(
+                value: '${stats.quizPct}%',
+                label: 'Quiz',
+                color: AppColors.accentPurple,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+
+        // --- Quiz accuracy ---
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Row(
+              children: [
+                ProgressRing(
+                  progress: stats.quizPct / 100.0,
+                  size: 64,
+                  strokeWidth: 6,
+                  color: AppColors.accentPurple,
+                  child: Text(
+                    '${stats.quizPct}%',
+                    style: textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.accentPurple,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Quiz Accuracy',
+                        style: textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        '${stats.quizCorrect} correct out of ${stats.quizAnswered}',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-}
+        const SizedBox(height: AppSpacing.lg),
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final VoidCallback? onViewAll;
-  const _SectionHeader({required this.title, this.onViewAll});
+        // --- Activity ---
+        ActivitySection(stats: stats),
+        const SizedBox(height: AppSpacing.lg),
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          title,
-          style: Theme.of(
+        // --- Nav rows ---
+        _NavRow(
+          icon: Icons.bar_chart,
+          color: AppColors.accentBlue,
+          background: AppColors.accentBlueBg,
+          label: 'Analytics',
+          onTap: () => Navigator.of(
             context,
-          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          ).push(MaterialPageRoute(builder: (_) => const AnalyticsScreen())),
         ),
-        const Spacer(),
-        if (onViewAll != null)
-          TextButton(onPressed: onViewAll, child: const Text('View all')),
+        const SizedBox(height: AppSpacing.sm),
+        _NavRow(
+          icon: Icons.emoji_events_outlined,
+          color: AppColors.accentOrange,
+          background: AppColors.accentOrangeBg,
+          label: 'Leaderboard',
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const LeaderboardScreen())),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+
+        // --- Achievements ---
+        AchievementSection(
+          achievements: stats.achievements,
+          unlocked: stats.achUnlocked,
+          total: stats.achTotal,
+        ),
+        const SizedBox(height: AppSpacing.lg),
       ],
     );
   }
 }
 
-class _LeaderboardPreview extends ConsumerWidget {
+class _NavRow extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final String label;
+  final VoidCallback onTap;
+  const _NavRow({
+    required this.icon,
+    required this.color,
+    required this.background,
+    required this.label,
+    required this.onTap,
+  });
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
-    final boardAsync = ref.watch(leaderboardProvider);
-
-    return boardAsync.when(
-      loading: () => const LoadingSkeleton(lines: 3),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (resp) {
-        if (resp.rows.isEmpty) return const SizedBox.shrink();
-        final preview = resp.rows.take(3).toList();
-        return Card(
-          child: Column(
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
             children: [
-              for (final r in preview)
-                ListTile(
-                  dense: true,
-                  leading: _rankBadge(r.rank, colorScheme, textTheme),
-                  title: Text(
-                    r.name.isNotEmpty ? r.name : 'User',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: r.isMe ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: Text(
-                    '${r.value}',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProfileDetailScreen(userId: r.id),
-                    ),
+              IconChip(icon: icon, color: color, background: background),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  label,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              if (resp.me != null && !preview.any((r) => r.isMe))
-                ListTile(
-                  dense: true,
-                  leading: _rankBadge(resp.me!.rank, colorScheme, textTheme),
-                  title: Text(
-                    'You',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  trailing: Text(
-                    '${resp.me!.value}',
-                    style: textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              ),
+              Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _rankBadge(int rank, ColorScheme cs, TextTheme tt) {
-    Color bg;
-    Color fg;
-    switch (rank) {
-      case 1:
-        bg = const Color(0xFFFFD700);
-        fg = Colors.black;
-        break;
-      case 2:
-        bg = const Color(0xFFC0C0C0);
-        fg = Colors.black;
-        break;
-      case 3:
-        bg = const Color(0xFFCD7F32);
-        fg = Colors.white;
-        break;
-      default:
-        bg = cs.surfaceContainerHighest;
-        fg = cs.onSurfaceVariant;
-    }
-    return CircleAvatar(
-      radius: 14,
-      backgroundColor: bg,
-      child: Text(
-        '$rank',
-        style: tt.labelSmall?.copyWith(color: fg, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

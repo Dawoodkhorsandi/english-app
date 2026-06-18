@@ -19,7 +19,10 @@ android {
         applicationId = "com.englishbot.english_app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // google_sign_in 7.x (Credential Manager / androidx.credentials) needs
+        // API 23+. Take the higher of Flutter's default and 23 so we never lower
+        // the floor if Flutter bumps it.
+        minSdk = maxOf(flutter.minSdkVersion, 23)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

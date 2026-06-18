@@ -32,4 +32,8 @@ class ApiEndpoints {
   static const authMe = '/api/auth/me';
   static const authTelegramCode = '/api/auth/telegram/code';
   static const authTelegramVerify = '/api/auth/telegram/verify';
+  static const authGoogle = '/api/auth/google';
+  static const authLinkGoogle = '/api/auth/link/google';
+  static const authLinkTelegram = '/api/auth/link/telegram';
+  static const reportBug = '/api/report/bug';
 }

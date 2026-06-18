@@ -49,6 +49,7 @@ class AuthState {
   final String? error;
   final String? email;
   final String? name;
+  final bool telegramConnected;
 
   AuthState({
     this.method = AuthMethod.none,
@@ -56,6 +57,7 @@ class AuthState {
     this.error,
     this.email,
     this.name,
+    this.telegramConnected = false,
   });
 
   AuthState copyWith({
@@ -64,6 +66,7 @@ class AuthState {
     String? error,
     String? email,
     String? name,
+    bool? telegramConnected,
     bool clearError = false,
   }) {
     return AuthState(
@@ -72,10 +75,24 @@ class AuthState {
       error: clearError ? null : (error ?? this.error),
       email: email ?? this.email,
       name: name ?? this.name,
+      telegramConnected: telegramConnected ?? this.telegramConnected,
     );
   }
 
   bool get isAuthenticated => method != AuthMethod.none;
+
+  /// The user's real display name, or null when none has been set.
+  ///
+  /// The backend uses a placeholder (`User <telegram_id>`) — or sometimes the
+  /// bare numeric id — for Telegram users who never set a name. We must never
+  /// surface that id to the user, so treat those as "no name".
+  String? get displayName {
+    final n = name?.trim() ?? '';
+    if (n.isEmpty) return null;
+    if (RegExp(r'^User\s*\d+$', caseSensitive: false).hasMatch(n)) return null;
+    if (RegExp(r'^\d+$').hasMatch(n)) return null;
+    return n;
+  }
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -117,6 +134,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
               : AuthMethod.email,
           email: email,
           name: data['name'] as String?,
+          telegramConnected: hasTelegram,
         );
         dev.log('[Auth] Session restored', name: 'Auth');
         return;
@@ -144,6 +162,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         method: AuthMethod.email,
         email: email,
         name: user?['name'] as String?,
+        telegramConnected: user?['telegram_chat_id'] != null,
       );
       dev.log('[Auth] Email login success', name: 'Auth');
     } catch (e) {
@@ -194,6 +213,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState(
         method: AuthMethod.telegram,
         name: user['name'] as String?,
+        telegramConnected: true,
       );
       dev.log('[Auth] Short code login success', name: 'Auth');
       return true;

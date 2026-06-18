@@ -236,9 +236,7 @@ class _Header extends ConsumerWidget {
       < 18 => ('Good afternoon', '⛅'),
       _ => ('Good evening', '\u{1F319}'),
     };
-    final name = (auth.name != null && auth.name!.isNotEmpty)
-        ? auth.name!
-        : 'there';
+    final display = auth.displayName;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,19 +245,30 @@ class _Header extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$greeting $emoji',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              // With a real name: greeting on top, name in bold below.
+              // Without one: promote the greeting to the bold line (never show
+              // the Telegram-id placeholder).
+              if (display != null) ...[
+                Text(
+                  '$greeting $emoji',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                name,
-                style: textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  display,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
+              ] else
+                Text(
+                  '$greeting $emoji',
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
             ],
           ),
         ),

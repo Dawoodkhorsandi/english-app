@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../core/constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/theme_mode_provider.dart';
@@ -64,6 +65,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         _updateSetting(ref, 'name', v.trim()),
                   ),
                 ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _TelegramStatusCard(
+                connected: ref.watch(authProvider).telegramConnected,
               ),
               const SizedBox(height: AppSpacing.md),
               Card(
@@ -275,5 +280,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       default:
         return key;
     }
+  }
+}
+
+/// Shows whether the account is linked to Telegram, with a hint to connect.
+class _TelegramStatusCard extends StatelessWidget {
+  final bool connected;
+  const _TelegramStatusCard({required this.connected});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          Icons.send_rounded,
+          color: connected ? AppColors.telegram : colorScheme.onSurfaceVariant,
+        ),
+        title: const Text('Telegram'),
+        subtitle: Text(
+          connected
+              ? 'Connected'
+              : 'Not connected · send /start to $botTelegramUsername',
+          style: textTheme.bodySmall?.copyWith(
+            color: connected ? AppColors.success : colorScheme.onSurfaceVariant,
+          ),
+        ),
+        trailing: Icon(
+          connected ? Icons.check_circle : Icons.cancel_outlined,
+          color: connected ? AppColors.success : colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 }

@@ -78,9 +78,8 @@ class _ProfileBody extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final auth = ref.watch(authProvider);
-    final name = (auth.name != null && auth.name!.isNotEmpty)
-        ? auth.name!
-        : 'Learner';
+    // Never surface the Telegram-id placeholder; fall back to a neutral label.
+    final name = auth.displayName ?? 'Learner';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

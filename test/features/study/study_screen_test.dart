@@ -48,7 +48,12 @@ Widget wrapInStudyApp({List<DeckProgress>? decks}) => ProviderScope(
     grammarLessonsProvider.overrideWith((ref) => Future.value(testLessons())),
     statsProvider.overrideWith(
       (ref) => Future.value(
-        Stats.fromJson({'idioms': 8, 'collocations': 6, 'stories': 4, 'tips': 5}),
+        Stats.fromJson({
+          'idioms': 8,
+          'collocations': 6,
+          'stories': 4,
+          'tips': 5,
+        }),
       ),
     ),
   ],

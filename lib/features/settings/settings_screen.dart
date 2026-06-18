@@ -6,6 +6,9 @@ import '../../../core/api/api_endpoints.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/theme_mode_provider.dart';
+import '../home/providers.dart';
+import '../home/daily_goal_picker.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/error_state.dart';
 
@@ -126,6 +129,61 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.cardPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Appearance',
+                        style: textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      SegmentedButton<ThemeMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: ThemeMode.system,
+                            label: Text('System'),
+                            icon: Icon(Icons.brightness_auto, size: 18),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            label: Text('Light'),
+                            icon: Icon(Icons.light_mode, size: 18),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            label: Text('Dark'),
+                            icon: Icon(Icons.dark_mode, size: 18),
+                          ),
+                        ],
+                        selected: {ref.watch(themeModeProvider)},
+                        showSelectedIcon: false,
+                        onSelectionChanged: (sel) {
+                          HapticFeedback.selectionClick();
+                          ref.read(themeModeProvider.notifier).set(sel.first);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Card(
+                child: ListTile(
+                  title: const Text('Daily word goal'),
+                  subtitle: Text(
+                    '${ref.watch(dailyGoalTargetProvider)} words / day',
+                  ),
+                  leading: const Icon(Icons.flag_outlined),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showDailyGoalPicker(context, ref),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),

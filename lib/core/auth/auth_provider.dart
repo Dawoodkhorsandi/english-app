@@ -2,6 +2,7 @@ import 'dart:developer' as dev;
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
+import '../api/api_endpoints.dart';
 
 /// Extracts the backend's error text from a failed request. The auth endpoints
 /// reply with a plain-text body (e.g. "code already used") on 4xx, or a JSON
@@ -41,7 +42,7 @@ bool _isNetworkError(Object e) {
   }
 }
 
-enum AuthMethod { telegram, email, none }
+enum AuthMethod { telegram, email, google, none }
 
 class AuthState {
   final AuthMethod method;
@@ -49,6 +50,7 @@ class AuthState {
   final String? error;
   final String? email;
   final String? name;
+  final bool telegramConnected;
 
   AuthState({
     this.method = AuthMethod.none,
@@ -56,6 +58,7 @@ class AuthState {
     this.error,
     this.email,
     this.name,
+    this.telegramConnected = false,
   });
 
   AuthState copyWith({
@@ -64,6 +67,7 @@ class AuthState {
     String? error,
     String? email,
     String? name,
+    bool? telegramConnected,
     bool clearError = false,
   }) {
     return AuthState(
@@ -72,10 +76,24 @@ class AuthState {
       error: clearError ? null : (error ?? this.error),
       email: email ?? this.email,
       name: name ?? this.name,
+      telegramConnected: telegramConnected ?? this.telegramConnected,
     );
   }
 
   bool get isAuthenticated => method != AuthMethod.none;
+
+  /// The user's real display name, or null when none has been set.
+  ///
+  /// The backend uses a placeholder (`User <telegram_id>`) — or sometimes the
+  /// bare numeric id — for Telegram users who never set a name. We must never
+  /// surface that id to the user, so treat those as "no name".
+  String? get displayName {
+    final n = name?.trim() ?? '';
+    if (n.isEmpty) return null;
+    if (RegExp(r'^User\s*\d+$', caseSensitive: false).hasMatch(n)) return null;
+    if (RegExp(r'^\d+$').hasMatch(n)) return null;
+    return n;
+  }
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -117,6 +135,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
               : AuthMethod.email,
           email: email,
           name: data['name'] as String?,
+          telegramConnected: hasTelegram,
         );
         dev.log('[Auth] Session restored', name: 'Auth');
         return;
@@ -144,6 +163,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         method: AuthMethod.email,
         email: email,
         name: user?['name'] as String?,
+        telegramConnected: user?['telegram_chat_id'] != null,
       );
       dev.log('[Auth] Email login success', name: 'Auth');
     } catch (e) {
@@ -194,6 +214,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState(
         method: AuthMethod.telegram,
         name: user['name'] as String?,
+        telegramConnected: true,
       );
       dev.log('[Auth] Short code login success', name: 'Auth');
       return true;
@@ -234,6 +255,102 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
       state = state.copyWith(isLoading: false, error: errorMsg);
       return false;
+    }
+  }
+
+  /// Exchanges a Google ID token (obtained natively on-device) for an app JWT.
+  Future<bool> loginWithGoogle(String idToken) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.authGoogle,
+        data: {'id_token': idToken},
+      );
+      final data = response.data;
+      final token = data['token'] as String;
+      final user = data['user'] as Map<String, dynamic>?;
+      _apiClient.setJwtToken(token);
+      state = AuthState(
+        method: AuthMethod.google,
+        email: user?['email'] as String?,
+        name: user?['name'] as String?,
+        telegramConnected: user?['telegram_chat_id'] != null,
+      );
+      dev.log('[Auth] Google login success', name: 'Auth');
+      return true;
+    } catch (e) {
+      dev.log('[Auth] Google login failed', name: 'Auth');
+      state = state.copyWith(
+        isLoading: false,
+        error: _isNetworkError(e)
+            ? "Couldn't reach the server. Check your connection and try again."
+            : 'Google sign-in failed. Please try again.',
+      );
+      return false;
+    }
+  }
+
+  /// Links a Google identity to the signed-in account, then refreshes the
+  /// profile. Requires an existing session (Bearer JWT).
+  Future<String?> linkGoogle(String idToken) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.authLinkGoogle,
+        data: {'id_token': idToken},
+      );
+      final err = response.data is Map ? response.data['error'] : null;
+      if (err != null) return err.toString();
+      await reloadProfile();
+      return null;
+    } catch (e) {
+      return _isNetworkError(e)
+          ? "Couldn't reach the server. Try again."
+          : 'Could not link Google.';
+    }
+  }
+
+  /// Links a Telegram account using a one-time code from the bot's /login.
+  /// The Telegram side is canonical, so the backend may return a fresh token
+  /// for the merged account. Returns null on success or an error message.
+  Future<String?> linkTelegram(String code) async {
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.authLinkTelegram,
+        data: {'code': code.trim().toUpperCase()},
+      );
+      final data = response.data;
+      if (data is Map && data['error'] != null) return data['error'].toString();
+      final token = data['token'] as String?;
+      if (token != null) _apiClient.setJwtToken(token);
+      await reloadProfile();
+      return null;
+    } catch (e) {
+      return _isNetworkError(e)
+          ? "Couldn't reach the server. Try again in a moment."
+          : 'That code was not accepted. Send /login to the bot for a new one.';
+    }
+  }
+
+  /// Re-fetches the profile from /api/auth/me and updates state (name,
+  /// email, telegramConnected) without changing the session.
+  Future<void> reloadProfile() async {
+    try {
+      final response = await _apiClient.get(ApiEndpoints.authMe);
+      final data = response.data as Map<String, dynamic>;
+      final email = data['email'] as String?;
+      final hasTelegram = data['telegram_chat_id'] != null;
+      state = state.copyWith(
+        method: (email == null || email.isEmpty) && hasTelegram
+            ? AuthMethod.telegram
+            : state.method == AuthMethod.none
+            ? AuthMethod.email
+            : state.method,
+        email: email,
+        name: data['name'] as String?,
+        telegramConnected: hasTelegram,
+      );
+    } catch (e) {
+      dev.log('[Auth] reloadProfile failed', name: 'Auth');
     }
   }
 

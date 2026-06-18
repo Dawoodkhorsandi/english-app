@@ -231,10 +231,12 @@ class _GrammarTile extends StatelessWidget {
     if (l.contains('upper')) {
       return (AppColors.accentPurple, AppColors.accentPurpleBg);
     }
-    if (l.contains('inter'))
+    if (l.contains('inter')) {
       return (AppColors.accentBlue, AppColors.accentBlueBg);
-    if (l.contains('begin'))
+    }
+    if (l.contains('begin')) {
       return (AppColors.success, AppColors.successContainer);
+    }
     return (AppColors.accentOrange, AppColors.accentOrangeBg);
   }
 

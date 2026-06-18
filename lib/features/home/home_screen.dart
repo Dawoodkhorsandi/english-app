@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'providers.dart';
+import 'daily_goal_picker.dart';
 import '../profile/providers.dart';
 import '../study/providers.dart';
 import '../review/providers.dart' as review_providers;
@@ -235,9 +236,7 @@ class _Header extends ConsumerWidget {
       < 18 => ('Good afternoon', '⛅'),
       _ => ('Good evening', '\u{1F319}'),
     };
-    final name = (auth.name != null && auth.name!.isNotEmpty)
-        ? auth.name!
-        : 'there';
+    final display = auth.displayName;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,19 +245,30 @@ class _Header extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$greeting $emoji',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              // With a real name: greeting on top, name in bold below.
+              // Without one: promote the greeting to the bold line (never show
+              // the Telegram-id placeholder).
+              if (display != null) ...[
+                Text(
+                  '$greeting $emoji',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xxs),
-              Text(
-                name,
-                style: textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  display,
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
+              ] else
+                Text(
+                  '$greeting $emoji',
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
             ],
           ),
         ),
@@ -416,46 +426,60 @@ class _DailyGoalCard extends ConsumerWidget {
         : 0.0;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Daily Goal',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => showDailyGoalPicker(context, ref),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Daily Goal',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Icon(
+                          Icons.edit_outlined,
+                          size: 13,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    '${goal.done} / ${goal.target} words',
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: AppSpacing.xxs),
+                    Text(
+                      '${goal.done} / ${goal.target} words',
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  ProgressBar(value: pct),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            ProgressRing(
-              progress: pct,
-              size: 52,
-              strokeWidth: 5,
-              child: Text(
-                '${(pct * 100).round()}%',
-                style: textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
+                    const SizedBox(height: AppSpacing.md),
+                    ProgressBar(value: pct),
+                  ],
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.lg),
+              ProgressRing(
+                progress: pct,
+                size: 52,
+                strokeWidth: 5,
+                child: Text(
+                  '${(pct * 100).round()}%',
+                  style: textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/auth/auth_provider.dart';
+import '../../core/auth/google_sign_in_service.dart';
 import '../../core/constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -44,6 +45,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } else {
       final name = _nameController.text.trim();
       await auth.register(email, password, name);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    if (!GoogleSignInService.isConfigured) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Google sign-in isn't configured yet.")),
+      );
+      return;
+    }
+    try {
+      final idToken = await GoogleSignInService.signIn();
+      if (idToken == null) return; // user canceled
+      await ref.read(authProvider.notifier).loginWithGoogle(idToken);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Google sign-in failed. Please try again.'),
+        ),
+      );
     }
   }
 
@@ -204,6 +226,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.telegram),
                     ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  OutlinedButton.icon(
+                    onPressed: auth.isLoading ? null : _signInWithGoogle,
+                    icon: const Icon(Icons.g_mobiledata, size: 28),
+                    label: const Text('Continue with Google'),
                   ),
                 ],
               ),

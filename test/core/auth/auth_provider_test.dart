@@ -172,6 +172,9 @@ void main() {
       expect(notifier.state.isAuthenticated, true);
       expect(notifier.state.method, AuthMethod.telegram);
       expect(notifier.state.name, 'User 991012762');
+      expect(notifier.state.telegramConnected, true);
+      // The placeholder id must never be shown as a real name.
+      expect(notifier.state.displayName, isNull);
     });
 
     test(
@@ -277,6 +280,30 @@ void main() {
       expect(notifier.state.method, AuthMethod.none);
       expect(notifier.state.email, isNull);
       expect(notifier.state.name, isNull);
+    });
+  });
+
+  group('AuthState.displayName', () {
+    String? d(String? name) => AuthState(name: name).displayName;
+
+    test('returns the name when it is a real name', () {
+      expect(d('Alex'), 'Alex');
+      expect(d('Mary Jane'), 'Mary Jane');
+    });
+
+    test('returns null for the "User <id>" placeholder', () {
+      expect(d('User 991012762'), isNull);
+      expect(d('user 42'), isNull);
+    });
+
+    test('returns null for a bare numeric id', () {
+      expect(d('991012762'), isNull);
+    });
+
+    test('returns null for empty or missing names', () {
+      expect(d(null), isNull);
+      expect(d(''), isNull);
+      expect(d('   '), isNull);
     });
   });
 }

@@ -5,7 +5,6 @@ import '../../features/home/home_screen.dart';
 import '../../features/study/study_screen.dart';
 import '../../features/library/library_screen.dart';
 import '../../features/profile/profile_screen.dart';
-import '../../features/settings/settings_screen.dart';
 
 final currentTabProvider = StateProvider<int>((ref) => 0);
 
@@ -24,25 +23,13 @@ class _MainShellState extends ConsumerState<MainShell> {
     ProfileScreen(),
   ];
 
-  static const _titles = ['Engram', 'Learn', 'Library', 'Profile'];
-
   @override
   Widget build(BuildContext context) {
     final currentTab = ref.watch(currentTabProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_titles[currentTab]),
-        actions: [
-          if (currentTab == 0 || currentTab == 3)
-            IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-            ),
-        ],
-      ),
+      // Every tab renders its own large in-body header to match the design;
+      // pushed sub-screens keep their own AppBars.
       body: _pages[currentTab],
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentTab,

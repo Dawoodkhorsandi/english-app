@@ -27,6 +27,9 @@ abstract final class AppRadius {
   static final BorderRadius borderFull = BorderRadius.circular(full);
 
   // ---- Shape helpers for theme config ----
+  static final RoundedRectangleBorder shapeXl = RoundedRectangleBorder(
+    borderRadius: borderXl,
+  );
   static final RoundedRectangleBorder shapeLg = RoundedRectangleBorder(
     borderRadius: borderLg,
   );

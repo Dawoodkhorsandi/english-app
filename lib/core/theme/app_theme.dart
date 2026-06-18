@@ -50,18 +50,28 @@ class AppTheme {
 
     final textTheme = _buildTextTheme(colorScheme);
 
+    // Page sits on a soft neutral; cards are a lighter/whiter surface with a
+    // hairline border so edges read without elevation/shadows.
+    final Color pageBg = isDark ? AppColors.pageDark : AppColors.pageLight;
+    final Color cardBg = isDark ? AppColors.cardDark : AppColors.cardLight;
+    final Color cardBorder = isDark
+        ? AppColors.cardBorderDark
+        : AppColors.cardBorderLight;
+
     return ThemeData(
       useMaterial3: true,
       brightness: colorScheme.brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
+      scaffoldBackgroundColor: pageBg,
+      // So custom containers can read Theme.of(context).cardColor.
+      cardColor: cardBg,
 
       // ---- Typography ----
       textTheme: textTheme,
 
       // ---- AppBar ----
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: pageBg,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0.5,
@@ -76,15 +86,18 @@ class AppTheme {
 
       // ---- Card ----
       cardTheme: CardThemeData(
-        color: colorScheme.surfaceContainerLow,
+        color: cardBg,
         elevation: 0,
-        shape: AppRadius.shapeLg,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.borderXl,
+          side: BorderSide(color: cardBorder, width: 1),
+        ),
         margin: EdgeInsets.zero,
       ),
 
       // ---- NavigationBar (bottom tabs) ----
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: cardBg,
         indicatorColor: colorScheme.primaryContainer,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         elevation: 0,

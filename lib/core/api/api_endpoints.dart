@@ -23,6 +23,8 @@ class ApiEndpoints {
   static const quizNext = '/api/quiz/next';
   static const quizAnswer = '/api/quiz/answer';
   static const practice = '/api/practice';
+  static const feedNext = '/api/feed/next';
+  static const lookup = '/api/lookup';
   static const grammar = '/api/grammar';
   static const grammarLesson = '/api/grammar/lesson';
   static const dictionary = '/api/dictionary';

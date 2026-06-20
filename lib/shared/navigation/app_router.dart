@@ -5,6 +5,7 @@ import '../../features/home/home_screen.dart';
 import '../../features/study/study_screen.dart';
 import '../../features/library/library_screen.dart';
 import '../../features/profile/profile_screen.dart';
+import '../../features/feed/feed_screen.dart';
 
 final currentTabProvider = StateProvider<int>((ref) => 0);
 
@@ -19,6 +20,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   final _pages = const [
     HomeScreen(),
     StudyScreen(),
+    FeedScreen(),
     LibraryScreen(),
     ProfileScreen(),
   ];
@@ -46,6 +48,11 @@ class _MainShellState extends ConsumerState<MainShell> {
             icon: Icon(Icons.school_outlined),
             selectedIcon: Icon(Icons.school),
             label: 'Learn',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.chat_bubble_outline),
+            selectedIcon: Icon(Icons.chat_bubble),
+            label: 'Chat',
           ),
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),

@@ -1,18 +1,18 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-/// Renders the small subset of Telegram-flavoured HTML the bot emits — `<b>`,
+/// Renders the small subset of inline HTML the content backend emits — `<b>`,
 /// `<i>`, `<u>`, `<code>`, `<tg-spoiler>` and `<br>` plus HTML entities — as a
-/// rich [Text]. Spoilers start covered and reveal on tap, matching Telegram.
+/// rich [Text]. Spoiler spans start covered and reveal on tap.
 ///
 /// This is intentionally a hand-rolled parser (not a full HTML package): the tag
 /// set is tiny and we need theme-matched, tappable spoilers.
-class TelegramHtml extends StatefulWidget {
+class RichHtml extends StatefulWidget {
   final String html;
   final TextStyle? style;
   final TextAlign textAlign;
 
-  const TelegramHtml(
+  const RichHtml(
     this.html, {
     super.key,
     this.style,
@@ -20,7 +20,7 @@ class TelegramHtml extends StatefulWidget {
   });
 
   @override
-  State<TelegramHtml> createState() => _TelegramHtmlState();
+  State<RichHtml> createState() => _RichHtmlState();
 }
 
 class _Run {
@@ -43,7 +43,7 @@ class _Run {
   });
 }
 
-class _TelegramHtmlState extends State<TelegramHtml> {
+class _RichHtmlState extends State<RichHtml> {
   final Set<int> _revealed = {};
   final List<TapGestureRecognizer> _recognizers = [];
 

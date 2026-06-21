@@ -50,12 +50,11 @@ class DeckStudyScreen extends ConsumerWidget {
                   (c) => SwipeCard(
                     front: c.term,
                     sub: c.pronunciation.isNotEmpty ? c.pronunciation : null,
-                    back: [
-                      c.definition,
-                      if (c.example.isNotEmpty) 'Example: ${c.example}',
-                      if (c.persian.isNotEmpty) c.persian,
-                      if (c.mnemonic.isNotEmpty) 'Mnemonic: ${c.mnemonic}',
-                    ].join('\n\n'),
+                    back: c.definition,
+                    meaning: c.definition,
+                    example: c.example,
+                    persian: c.persian,
+                    mnemonic: c.mnemonic,
                     term: c.term,
                   ),
                 )

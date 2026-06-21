@@ -18,11 +18,17 @@ class ApiEndpoints {
   static const decksDetail = '/api/decks/detail';
   static const decksSwipe = '/api/decks/swipe';
   static const settings = '/api/settings';
+  static const export = '/api/export';
+  static const onboarding = '/api/onboarding';
+  static const exam = '/api/exam';
+  static const pronounce = '/api/pronounce';
   static const content = '/api/content';
   static const quizzes = '/api/quizzes';
   static const quizNext = '/api/quiz/next';
   static const quizAnswer = '/api/quiz/answer';
   static const practice = '/api/practice';
+  static const feedNext = '/api/feed/next';
+  static const lookup = '/api/lookup';
   static const grammar = '/api/grammar';
   static const grammarLesson = '/api/grammar/lesson';
   static const dictionary = '/api/dictionary';

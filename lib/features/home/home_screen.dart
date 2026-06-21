@@ -527,11 +527,11 @@ class _ReviewSessionScreen extends ConsumerWidget {
                 (c) => SwipeCard(
                   front: c.term,
                   sub: c.pronunciation.isNotEmpty ? c.pronunciation : null,
-                  back: [
-                    c.meaning,
-                    if (c.example.isNotEmpty) 'Example: ${c.example}',
-                    if (c.persian.isNotEmpty) c.persian,
-                  ].join('\n\n'),
+                  back: c.meaning,
+                  meaning: c.meaning,
+                  example: c.example,
+                  persian: c.persian,
+                  mnemonic: c.mnemonic,
                   term: c.term,
                 ),
               )

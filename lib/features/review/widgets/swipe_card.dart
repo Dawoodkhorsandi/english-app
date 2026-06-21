@@ -10,12 +10,27 @@ class SwipeCard {
   final String? sub;
   final String back;
   final String term;
+
+  /// Structured context fields. When [meaning] is non-null the back renders as
+  /// styled blocks (meaning, example, Persian, mnemonic) instead of the flat
+  /// [back] string — surfacing context as a first-class part of every card.
+  final String? meaning;
+  final String? example;
+  final String? persian;
+  final String? mnemonic;
+
   SwipeCard({
     required this.front,
     this.sub,
     required this.back,
     required this.term,
+    this.meaning,
+    this.example,
+    this.persian,
+    this.mnemonic,
   });
+
+  bool get hasContext => meaning != null && meaning!.isNotEmpty;
 }
 
 class SwipeSession extends StatefulWidget {
@@ -165,12 +180,10 @@ class _SwipeSessionState extends State<SwipeSession> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_flipped) ...[
-                                  Text(
-                                    _queue.first.back,
-                                    textAlign: TextAlign.center,
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      height: 1.6,
-                                    ),
+                                  _buildBack(
+                                    _queue.first,
+                                    colorScheme,
+                                    textTheme,
                                   ),
                                 ] else ...[
                                   Text(
@@ -299,6 +312,77 @@ class _SwipeSessionState extends State<SwipeSession> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  /// Renders the back of a card. When the card carries structured context it
+  /// shows the meaning, a quoted example sentence, the Persian gloss (RTL), and
+  /// a mnemonic — each as its own styled block. Falls back to the flat [back]
+  /// string for cards that don't supply structured fields.
+  Widget _buildBack(
+    SwipeCard card,
+    ColorScheme colorScheme,
+    TextTheme textTheme,
+  ) {
+    if (!card.hasContext) {
+      return Text(
+        card.back,
+        textAlign: TextAlign.center,
+        style: textTheme.bodyLarge?.copyWith(height: 1.6),
+      );
+    }
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          card.meaning!,
+          textAlign: TextAlign.center,
+          style: textTheme.titleMedium?.copyWith(height: 1.5),
+        ),
+        if (card.example != null && card.example!.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: AppRadius.borderMd,
+              border: const Border(
+                left: BorderSide(color: AppColors.accentBlue, width: 3),
+              ),
+            ),
+            child: Text(
+              '“${card.example}”',
+              style: textTheme.bodyMedium?.copyWith(
+                fontStyle: FontStyle.italic,
+                height: 1.5,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+        if (card.persian != null && card.persian!.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: Text(
+              '🇮🇷 ${card.persian}',
+              textAlign: TextAlign.right,
+              style: textTheme.bodyLarge?.copyWith(height: 1.6),
+            ),
+          ),
+        ],
+        if (card.mnemonic != null && card.mnemonic!.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            '💡 ${card.mnemonic}',
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.outline,
+              height: 1.5,
+            ),
+          ),
+        ],
       ],
     );
   }

@@ -13,6 +13,38 @@ final decksProvider = FutureProvider<List<DeckProgress>>((ref) async {
       .toList();
 });
 
+/// IELTS/TOEFL exam-track status (#1): target deck + estimated band/score.
+class ExamStatus {
+  final String target; // '', 'ielts', 'toefl'
+  final String label;
+  final String deckId;
+  final String deckName;
+  final String estimate;
+  final String scale; // 'band' or 'score'
+  final int accuracy;
+  final bool ready;
+  final String detail;
+
+  ExamStatus.fromJson(Map<String, dynamic> j)
+    : target = j['target'] ?? '',
+      label = j['label'] ?? '',
+      deckId = j['deckId'] ?? '',
+      deckName = j['deckName'] ?? '',
+      estimate = j['estimate'] ?? '',
+      scale = j['scale'] ?? '',
+      accuracy = j['accuracy'] ?? 0,
+      ready = j['ready'] ?? false,
+      detail = j['detail'] ?? '';
+
+  bool get active => target.isNotEmpty;
+}
+
+final examStatusProvider = FutureProvider<ExamStatus>((ref) async {
+  final client = ref.watch(apiClientProvider);
+  final response = await client.get(ApiEndpoints.exam);
+  return ExamStatus.fromJson(Map<String, dynamic>.from(response.data));
+});
+
 final deckDetailProvider = FutureProvider.family<DeckDetail, String>((
   ref,
   deckId,

@@ -6,6 +6,9 @@ class AppSettings {
   final bool paused;
   final int interval;
   final Map<String, bool> toggles;
+  final double desiredRetention; // FSRS target recall (0.70–0.97)
+  final int streakFreezes; // banked streak-saver tokens
+  final String examTarget; // '', 'ielts', or 'toefl'
 
   AppSettings({
     required this.level,
@@ -15,6 +18,9 @@ class AppSettings {
     required this.paused,
     required this.interval,
     required this.toggles,
+    this.desiredRetention = 0.9,
+    this.streakFreezes = 0,
+    this.examTarget = '',
   });
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -26,6 +32,9 @@ class AppSettings {
       paused: json['paused'] ?? false,
       interval: json['interval'] ?? 60,
       toggles: Map<String, bool>.from(json['toggles'] ?? {}),
+      desiredRetention: (json['desired_retention'] as num?)?.toDouble() ?? 0.9,
+      streakFreezes: json['streak_freezes'] ?? 0,
+      examTarget: json['exam_target'] ?? '',
     );
   }
 }

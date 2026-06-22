@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -151,6 +152,49 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _RetentionCard(
+                value: settings.desiredRetention,
+                onChanged: (v) => _updateSetting(ref, 'desired_retention', v),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _ExamGoalCard(
+                value: settings.examTarget,
+                onChanged: (v) => _updateSetting(ref, 'exam_target', v),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.ac_unit,
+                    color: AppColors.accentBlue,
+                  ),
+                  title: const Text('Streak savers'),
+                  subtitle: Text(
+                    '${settings.streakFreezes} banked · auto-protect a missed day. '
+                    'Earn one at each streak milestone.',
+                  ),
+                  trailing: Text(
+                    '${settings.streakFreezes}',
+                    style: textTheme.titleLarge?.copyWith(
+                      color: AppColors.accentBlue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.download_outlined),
+                  title: const Text('Export my data'),
+                  subtitle: const Text(
+                    'Copy your vocabulary & review schedule as JSON',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _exportData,
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -394,6 +438,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  /// Fetches the full export payload and copies it to the clipboard, so a user
+  /// can paste their learning data anywhere — it is never locked in.
+  Future<void> _exportData() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final client = ref.read(apiClientProvider);
+    try {
+      final res = await client.get(ApiEndpoints.export);
+      final encoded = const JsonEncoder.withIndent('  ').convert(res.data);
+      await Clipboard.setData(ClipboardData(text: encoded));
+      final count = (res.data is Map) ? (res.data['word_count'] ?? '') : '';
+      messenger.showSnackBar(
+        SnackBar(content: Text('Copied $count words to your clipboard')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Export failed. Please try again.')),
+      );
+    }
+  }
+
   String _toggleLabel(String key) {
     switch (key) {
       case 'tts':
@@ -448,6 +512,131 @@ class _TelegramStatusCard extends StatelessWidget {
         trailing: connected
             ? const Icon(Icons.check_circle, color: AppColors.success)
             : const Icon(Icons.chevron_right),
+      ),
+    );
+  }
+}
+
+/// Review-tuning card with the FSRS desired-retention dial. Drags update the
+/// label locally; the value is committed to the backend on release.
+class _RetentionCard extends StatefulWidget {
+  final double value;
+  final ValueChanged<double> onChanged;
+  const _RetentionCard({required this.value, required this.onChanged});
+
+  @override
+  State<_RetentionCard> createState() => _RetentionCardState();
+}
+
+class _RetentionCardState extends State<_RetentionCard> {
+  late double _draft = widget.value;
+
+  @override
+  void didUpdateWidget(_RetentionCard old) {
+    super.didUpdateWidget(old);
+    if (old.value != widget.value) _draft = widget.value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Review tuning',
+                  style: textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'Target recall ${(_draft * 100).round()}%',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: AppColors.accentBlue,
+                  ),
+                ),
+              ],
+            ),
+            Slider(
+              min: 0.70,
+              max: 0.97,
+              divisions: 27,
+              value: _draft.clamp(0.70, 0.97),
+              label: '${(_draft * 100).round()}%',
+              onChanged: (v) => setState(() => _draft = v),
+              onChangeEnd: widget.onChanged,
+            ),
+            Text(
+              'Higher = you remember more, but get more reviews. 90% is the '
+              'sweet spot most learners want.',
+              style: textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Exam-goal selector (None / IELTS / TOEFL). Picking a target surfaces its
+/// band-targeted deck and exam practice in Study.
+class _ExamGoalCard extends StatelessWidget {
+  final String value;
+  final ValueChanged<String> onChanged;
+  const _ExamGoalCard({required this.value, required this.onChanged});
+
+  static const _options = [
+    ('', 'None'),
+    ('ielts', 'IELTS'),
+    ('toefl', 'TOEFL'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Exam goal',
+              style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.chipGap,
+              children: _options
+                  .map(
+                    (o) => ChoiceChip(
+                      label: Text(o.$2),
+                      selected: value == o.$1,
+                      onSelected: (_) {
+                        HapticFeedback.selectionClick();
+                        onChanged(o.$1);
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              'Focus vocabulary on your target test and unlock its deck.',
+              style: textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

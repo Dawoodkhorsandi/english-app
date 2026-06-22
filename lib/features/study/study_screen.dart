@@ -5,6 +5,9 @@ import 'deck_detail_screen.dart';
 import 'content_list_screen.dart';
 import 'grammar_lesson_screen.dart';
 import '../profile/providers.dart';
+import '../pronounce/pronounce_screen.dart';
+import '../../core/api/api_endpoints.dart';
+import '../../core/auth/auth_provider.dart';
 import '../../core/models/grammar_lesson.dart';
 import '../../shared/widgets/loading_skeleton.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -94,11 +97,23 @@ class _DecksTab extends ConsumerWidget {
               subtitle: 'Decks appear as you learn new words.',
             );
           }
+          final exam = ref.watch(examStatusProvider).valueOrNull;
+          final showExam = exam != null && exam.active;
+          final lead = showExam ? 1 : 0;
           return ListView.separated(
             padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-            itemCount: decks.length,
+            itemCount:
+                lead +
+                decks.length +
+                2, // + pronounce tile + forward-to-deck hint
             separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-            itemBuilder: (context, i) => _DeckTile(deck: decks[i], index: i),
+            itemBuilder: (context, i) {
+              if (showExam && i == 0) return _ExamCard(exam: exam);
+              final di = i - lead;
+              if (di == decks.length) return const _PronounceTile();
+              if (di == decks.length + 1) return const _ForwardDeckHint();
+              return _DeckTile(deck: decks[di], index: di);
+            },
           );
         },
       ),
@@ -180,6 +195,146 @@ class _DeckTile extends StatelessWidget {
               Icon(Icons.chevron_right, color: colorScheme.onSurfaceVariant),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Pronunciation practice entry (#6): fetches a word, opens the mic screen.
+class _PronounceTile extends ConsumerWidget {
+  const _PronounceTile();
+
+  Future<void> _open(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    try {
+      final res = await ref
+          .read(apiClientProvider)
+          .get(ApiEndpoints.practice, queryParameters: {'kind': 'word'});
+      final term = (res.data is Map) ? (res.data['term'] as String?) : null;
+      if (term == null || term.isEmpty) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Learn a few words first, then practise saying them.',
+            ),
+          ),
+        );
+        return;
+      }
+      navigator.push(
+        MaterialPageRoute(builder: (_) => PronounceScreen(word: term)),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Could not start pronunciation practice.'),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.mic, color: AppColors.accentPurple),
+        title: const Text('Practice pronunciation'),
+        subtitle: const Text('Record a word and get a match score'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _open(context, ref),
+      ),
+    );
+  }
+}
+
+/// Discoverability hint for forward-to-deck (#4).
+class _ForwardDeckHint extends StatelessWidget {
+  const _ForwardDeckHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Text(
+        '💡 Send the bot any English text (an article, a paragraph) and it '
+        'becomes a personal deck.',
+        style: textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+/// IELTS/TOEFL goal panel: estimated band/score + a jump into the exam deck.
+class _ExamCard extends StatelessWidget {
+  final ExamStatus exam;
+  const _ExamCard({required this.exam});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+    return Card(
+      color: AppColors.accentBlueBg,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.school, color: AppColors.accentBlue),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  '${exam.label} goal',
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  exam.ready
+                      ? '${exam.estimate}${exam.scale == 'band' ? ' band' : ''}'
+                      : '—',
+                  style: textTheme.headlineSmall?.copyWith(
+                    color: AppColors.accentBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              exam.ready
+                  ? '${exam.detail} · ${exam.accuracy}% quiz accuracy'
+                  : exam.detail,
+              style: textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (exam.deckId.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DeckDetailScreen(
+                        deckId: exam.deckId,
+                        deckName: exam.deckName,
+                      ),
+                    ),
+                  ),
+                  child: Text('Study ${exam.deckName}'),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

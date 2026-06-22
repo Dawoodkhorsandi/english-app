@@ -18,6 +18,10 @@ class ApiEndpoints {
   static const decksDetail = '/api/decks/detail';
   static const decksSwipe = '/api/decks/swipe';
   static const settings = '/api/settings';
+  static const export = '/api/export';
+  static const onboarding = '/api/onboarding';
+  static const exam = '/api/exam';
+  static const pronounce = '/api/pronounce';
   static const content = '/api/content';
   static const quizzes = '/api/quizzes';
   static const quizNext = '/api/quiz/next';

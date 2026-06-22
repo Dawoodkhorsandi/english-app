@@ -6,6 +6,7 @@ import '../../features/study/study_screen.dart';
 import '../../features/library/library_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/feed/feed_screen.dart';
+import '../../features/onboarding/onboarding_screen.dart';
 
 final currentTabProvider = StateProvider<int>((ref) => 0);
 
@@ -24,6 +25,20 @@ class _MainShellState extends ConsumerState<MainShell> {
     LibraryScreen(),
     ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // First launch: if the user hasn't triaged the common-word list yet, present
+    // the known-word onboarding so study can skip what they already know.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final words = await ref.read(onboardingWordsProvider.future);
+      if (!mounted || words.isEmpty) return;
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const OnboardingScreen()));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +65,9 @@ class _MainShellState extends ConsumerState<MainShell> {
             label: 'Learn',
           ),
           NavigationDestination(
-            icon: Icon(Icons.dynamic_feed_outlined),
-            selectedIcon: Icon(Icons.dynamic_feed),
-            label: 'Feed',
+            icon: Icon(Icons.chat_bubble_outline),
+            selectedIcon: Icon(Icons.chat_bubble),
+            label: 'Chat',
           ),
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
